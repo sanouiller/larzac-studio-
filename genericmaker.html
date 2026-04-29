@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GénériqueMAKER — Larzac Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Cinzel:wght@400;700&family=Abril+Fatface&family=Special+Elite&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Orbitron:wght@400;700&family=Creepster&family=Pacifico&family=Rye&family=Russo+One&family=Great+Vibes&family=Fredoka+One&family=Permanent+Marker&family=UnifrakturMaguntia&family=Monoton&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0d0f; --surface: #161618; --surface2: #1e1e21;
+  --border: #2a2a2e; --gold: #c9a96e; --gold-dim: #7a6540;
+  --cream: #f0e2c4; --text: #c8bcab; --text-dim: #5a5450;
+  --red: #c0392b; --green: #27ae60;
+}
+html { height: 100%; }
+body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; display: flex; flex-direction: column; position: relative; }
+
+header { display:flex; align-items:center; justify-content:space-between; padding:10px 18px; border-bottom:1px solid var(--border); background:var(--surface); flex-shrink:0; }
+.logo { font-family:'Playfair Display',serif; font-size:15px; color:var(--gold); letter-spacing:2px; }
+.logo em { color:var(--text-dim); font-style:normal; font-size:12px; margin-left:10px; letter-spacing:1px; }
+.hbtns { display:flex; gap:6px; }
+.hbtn { background:var(--surface2); border:1px solid var(--border); color:var(--text); font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:1px; padding:5px 12px; cursor:pointer; transition:all .2s; }
+.hbtn:hover { border-color:var(--gold); color:var(--gold); }
+
+main { display:flex; flex:1; overflow:hidden; }
+
+.editor { width:320px; flex-shrink:0; border-right:1px solid var(--border); overflow-y:auto; padding:14px 12px; display:flex; flex-direction:column; gap:10px; }
+.editor::-webkit-scrollbar { width:3px; }
+.editor::-webkit-scrollbar-thumb { background:var(--border); }
+
+.fg { display:flex; flex-direction:column; gap:3px; }
+label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
+input[type=text], textarea, select {
+  background:var(--surface2); border:1px solid var(--border); color:var(--cream);
+  font-family:'Rajdhani',sans-serif; font-size:13px; padding:7px 9px; width:100%;
+  transition:border-color .2s; resize:vertical;
+}
+input[type=text]:focus, textarea:focus, select:focus { outline:none; border-color:var(--gold-dim); }
+textarea { min-height:54px; font-size:12px; }
+select { cursor:pointer; }
+
+.sep { border-top:1px solid var(--border); padding-top:10px; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--gold-dim); }
+
+/* COLOR ROW */
+.color-row { display:flex; gap:8px; }
+.color-item { flex:1; }
+.cpick-wrap { display:flex; align-items:center; gap:6px; background:var(--surface2); border:1px solid var(--border); padding:5px 8px; cursor:pointer; transition:border-color .2s; }
+.cpick-wrap:hover { border-color:var(--gold-dim); }
+.cpick-wrap input[type=color] { width:22px; height:22px; border:none; background:none; padding:0; cursor:pointer; flex-shrink:0; }
+.cpick-label { font-size:11px; color:var(--text); font-family:'Rajdhani',sans-serif; }
+
+/* CUSTOM FONT DROPDOWN */
+.font-dropdown { position:relative; }
+.font-trigger { display:flex; align-items:center; justify-content:space-between; background:var(--surface2); border:1px solid var(--border); padding:7px 9px; cursor:pointer; transition:border-color .2s; user-select:none; }
+.font-trigger:hover, .font-trigger.open { border-color:var(--gold-dim); }
+.font-trigger-name { font-size:13px; color:var(--cream); }
+.font-trigger-arrow { color:var(--text-dim); font-size:10px; transition:transform .2s; }
+.font-trigger.open .font-trigger-arrow { transform:rotate(180deg); }
+.font-panel { position:absolute; top:calc(100% + 2px); left:0; right:0; background:var(--surface); border:1px solid var(--border); z-index:200; display:none; max-height:260px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,.7); }
+.font-panel.open { display:block; }
+.font-panel::-webkit-scrollbar { width:3px; }
+.font-panel::-webkit-scrollbar-thumb { background:var(--border); }
+.font-option { padding:10px 12px; cursor:pointer; border-bottom:1px solid var(--border); transition:background .15s; }
+.font-option:last-child { border-bottom:none; }
+.font-option:hover { background:var(--surface2); }
+.font-option.selected { background:rgba(201,169,110,.08); border-left:2px solid var(--gold-dim); }
+.font-option-name { font-size:16px; color:var(--cream); line-height:1.3; }
+.font-option-label { font-size:9px; letter-spacing:1px; color:var(--text-dim); margin-top:2px; text-transform:uppercase; }
+
+/* BLOCKS */
+.cblock { background:var(--surface2); border:1px solid var(--border); border-left:2px solid var(--gold-dim); padding:8px; display:flex; flex-direction:column; gap:5px; }
+.cblock.dragging { opacity:.35; }
+.cblock.drag-over { border-top:2px solid var(--gold); }
+.cblock-head { display:flex; align-items:center; gap:6px; }
+.drag-handle { color:var(--text-dim); cursor:grab; font-size:14px; flex-shrink:0; user-select:none; padding:0 2px; }
+.drag-handle:active { cursor:grabbing; }
+.cblock-head input { flex:1; background:transparent; border:1px solid transparent; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); padding:3px 6px; }
+.cblock-head input:focus { border-color:var(--gold-dim); background:var(--surface); }
+.btn-rm { background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:18px; line-height:1; padding:0 3px; transition:color .2s; flex-shrink:0; }
+.btn-rm:hover { color:var(--red); }
+.btn-add { background:none; border:1px dashed var(--border); color:var(--text-dim); font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:1px; padding:7px; cursor:pointer; transition:all .2s; width:100%; }
+.btn-add:hover { border-color:var(--gold-dim); color:var(--gold-dim); }
+
+.srow { display:flex; align-items:center; gap:8px; }
+.srow input[type=range] { flex:1; accent-color:var(--gold); }
+.sval { width:34px; text-align:right; color:var(--gold); font-size:12px; flex-shrink:0; }
+
+.upzone { border:1px dashed var(--border); padding:10px; text-align:center; cursor:pointer; font-size:11px; color:var(--text-dim); transition:border-color .2s; }
+.upzone:hover { border-color:var(--gold-dim); color:var(--gold-dim); }
+.btn-rm-small { margin-top:4px; background:none; border:1px solid #5a1818; color:#e05; font-family:'Rajdhani',sans-serif; font-size:10px; letter-spacing:1px; padding:4px 8px; cursor:pointer; width:100%; }
+
+.preview { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:16px; background:#060608; }
+.cwrap { position:relative; width:100%; max-width:820px; aspect-ratio:16/9; background:#000; box-shadow:0 0 80px rgba(201,169,110,.08),0 0 0 1px #1a1a1e; }
+canvas { width:100%; height:100%; display:block; }
+.ctrls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:center; }
+.cbtn { font-family:'Rajdhani',sans-serif; font-size:12px; letter-spacing:2px; text-transform:uppercase; padding:9px 18px; border:1px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; gap:7px; }
+.cbtn:hover { border-color:var(--gold); color:var(--gold); }
+.cbtn.primary { border-color:var(--gold-dim); color:var(--gold); }
+.cbtn.primary:hover { background:rgba(201,169,110,.08); }
+.cbtn.danger { border-color:#5a1818; color:#e05; }
+.cbtn.danger:hover { background:rgba(200,0,50,.08); }
+.cbtn.dl { border-color:#1a4a2a; color:var(--green); }
+.cbtn.dl:hover { background:rgba(39,174,96,.08); }
+.cbtn:disabled { opacity:.3; cursor:not-allowed; pointer-events:none; }
+.status { font-size:11px; letter-spacing:1px; color:var(--text-dim); text-align:center; min-height:16px; }
+.status.rec { color:#e04060; animation:blink 1s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* TEMPLATE MODAL */
+.tpl-overlay { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,.82); z-index:9999; display:none; align-items:center; justify-content:center; }
+.tpl-overlay.open { display:flex; }
+.tpl-modal { background:var(--surface); border:1px solid var(--border); width:520px; max-width:95vw; }
+.tpl-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); }
+.tpl-header h2 { font-family:'Playfair Display',serif; font-size:14px; color:var(--gold); letter-spacing:1px; font-weight:400; }
+.tpl-close { background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:22px; line-height:1; padding:0; }
+.tpl-close:hover { color:var(--cream); }
+.tpl-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); }
+.tpl-card { background:var(--surface); padding:16px; cursor:pointer; transition:background .15s; }
+.tpl-card:hover { background:var(--surface2); }
+.tpl-card-title { font-size:13px; color:var(--cream); letter-spacing:1px; margin-bottom:4px; }
+.tpl-card-desc { font-size:10px; color:var(--text-dim); line-height:1.5; }
+
+/* PALETTES */
+.palette-row { display:flex; gap:5px; flex-wrap:wrap; }
+.pal-swatch { width:26px; height:26px; border-radius:3px; cursor:pointer; border:2px solid transparent; transition:border-color .15s, transform .15s; flex-shrink:0; }
+.pal-swatch:hover { border-color:var(--cream); transform:scale(1.12); }
+
+/* TWO-COL TOGGLE */
+.toggle-row { display:flex; align-items:center; justify-content:space-between; }
+.toggle-label { font-size:11px; color:var(--text); }
+.toggle { position:relative; width:36px; height:20px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; position:absolute; }
+.toggle-track { position:absolute; inset:0; background:var(--border); border-radius:10px; cursor:pointer; transition:background .2s; }
+.toggle input:checked + .toggle-track { background:var(--gold-dim); }
+.toggle-thumb { position:absolute; top:3px; left:3px; width:14px; height:14px; background:#fff; border-radius:50%; transition:transform .2s; pointer-events:none; }
+.toggle input:checked ~ .toggle-thumb { transform:translateX(16px); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎬 LARZAC STUDIO <em>· GénériqueMAKER</em></div>
+  <div class="hbtns">
+    <button class="hbtn" onclick="openTemplates()">🎬 Templates</button>
+    <button class="hbtn" onclick="saveJSON()">💾 Sauvegarder</button>
+    <button class="hbtn" onclick="document.getElementById('fi').click()">📂 Charger</button>
+    <input type="file" id="fi" accept=".json" style="display:none" onchange="loadJSON(event)">
+  </div>
+</header>
+
+<main>
+  <div class="editor">
+
+    <div class="fg">
+      <label>Titre du film</label>
+      <input type="text" id="filmTitle" value="MON FILM" oninput="rebuild()">
+    </div>
+    <div class="fg">
+      <label>Sous-titre / Accroche</label>
+      <input type="text" id="filmSub" placeholder="Un film de Larzac Studio…" oninput="rebuild()">
+    </div>
+    <div class="fg" style="display:flex;gap:8px;">
+      <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
+        <label>Saison</label>
+        <input type="text" id="season" placeholder="ex: Saison 2" oninput="rebuild()">
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
+        <label>Épisode</label>
+        <input type="text" id="episode" placeholder="ex: Épisode 4" oninput="rebuild()">
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Police</label>
+      <div class="font-dropdown" id="fontDropdown">
+        <div class="font-trigger" id="fontTrigger" onclick="toggleFontPanel()">
+          <span class="font-trigger-name" id="fontTriggerName">Playfair Display</span>
+          <span class="font-trigger-arrow">▼</span>
+        </div>
+        <div class="font-panel" id="fontPanel"></div>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Couleurs du texte</label>
+      <div class="color-row">
+        <div class="color-item">
+          <div class="cpick-wrap" onclick="document.getElementById('colorSec').click()">
+            <input type="color" id="colorSec" value="#c9a96e" oninput="rebuild()">
+            <span class="cpick-label">Sections</span>
+          </div>
+        </div>
+        <div class="color-item">
+          <div class="cpick-wrap" onclick="document.getElementById('colorName').click()">
+            <input type="color" id="colorName" value="#f0e2c4" oninput="rebuild()">
+            <span class="cpick-label">Noms</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>Fond</label>
+      <select id="bgChoice" onchange="rebuild()">
+        <option value="noir">⬛ Noir pur</option>
+        <option value="grain" selected>🎞️ Grain de pellicule</option>
+        <option value="sepia">🟫 Sépia vintage</option>
+        <option value="bleu">🔵 Bleu nuit</option>
+        <option value="rouge">🔴 Rouge cinéma</option>
+      </select>
+    </div>
+
+    <div class="fg">
+      <label>Logo du club (intro &amp; fin)</label>
+      <div class="upzone" id="logozone" onclick="document.getElementById('logoInput').click()">🏷️ Cliquer pour ajouter un logo</div>
+      <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="loadLogo(event)">
+      <button class="btn-rm-small" id="logoRm" style="display:none" onclick="removeLogo()">✕ Supprimer le logo</button>
+    </div>
+
+    <div class="sep">Dédicace</div>
+    <div class="fg">
+      <label>Texte (affiché avant les crédits)</label>
+      <textarea id="dedication" placeholder="À tous ceux qui ont rendu ce film possible…" oninput="rebuild()" style="font-style:italic;"></textarea>
+    </div>
+
+    <div class="sep">Crédits</div>
+    <div id="blocks"></div>
+    <button class="btn-add" onclick="addBlock()">+ Ajouter une section</button>
+
+    <div class="sep">Crédits sonores</div>
+    <div class="fg">
+      <label>Musiques utilisées (une par ligne)</label>
+      <textarea id="soundCredits" placeholder="« Titre » — Artiste&#10;« Titre 2 » — Artiste" oninput="rebuild()"></textarea>
+    </div>
+
+    <div class="sep">Fin de générique</div>
+    <div class="fg">
+      <label>Établissement</label>
+      <input type="text" id="school" value="Collège du Larzac" oninput="rebuild()">
+    </div>
+    <div class="fg">
+      <label>Club</label>
+      <input type="text" id="club" value="Larzac Studio" oninput="rebuild()">
+    </div>
+    <div class="fg">
+      <label>Année</label>
+      <input type="text" id="year" value="2025 — 2026" oninput="rebuild()">
+    </div>
+    <div class="fg">
+      <label>Photo de l'équipe</label>
+      <div class="upzone" id="photozone" onclick="document.getElementById('photoInput').click()">📷 Cliquer pour choisir une image</div>
+      <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="loadPhoto(event)">
+      <button class="btn-rm-small" id="photoRm" style="display:none" onclick="removePhoto()">✕ Supprimer la photo</button>
+    </div>
+
+    <div class="sep">Musique de fond</div>
+    <div class="fg">
+      <div class="upzone" id="musiczone" onclick="document.getElementById('musicInput').click()">🎵 Importer un fichier audio (MP3, WAV, OGG)</div>
+      <input type="file" id="musicInput" accept="audio/*" style="display:none" onchange="loadMusic(event)">
+      <button class="btn-rm-small" id="musicRm" style="display:none" onclick="removeMusic()">✕ Supprimer la musique</button>
+    </div>
+    <div class="fg" id="musicVolRow" style="display:none">
+      <label>Volume</label>
+      <div class="srow">
+        <input type="range" id="musicVol" min="0" max="1" step="0.05" value="0.7" oninput="document.getElementById('mvv').textContent=Math.round(this.value*100)+'%';if(musicAudio)musicAudio.volume=parseFloat(this.value)">
+        <span class="sval" id="mvv">70%</span>
+      </div>
+    </div>
+
+    <div class="sep">Paramètres</div>
+    <div class="fg">
+      <label>Vitesse de défilement</label>
+      <div class="srow">
+        <input type="range" id="speed" min="1" max="10" value="4" oninput="document.getElementById('sv').textContent=this.value">
+        <span class="sval" id="sv">4</span>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Durée affichage titre</label>
+      <div class="srow">
+        <input type="range" id="tdur" min="1" max="8" value="3" oninput="document.getElementById('tv').textContent=this.value+'s'">
+        <span class="sval" id="tv">3s</span>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Espacement entre éléments</label>
+      <div class="srow">
+        <input type="range" id="spacing" min="0" max="5" step="0.5" value="1" oninput="document.getElementById('spv').textContent=this.value+'×';rebuild()">
+        <span class="sval" id="spv">1×</span>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Taille du texte</label>
+      <div class="srow">
+        <input type="range" id="fontSize" min="0.5" max="2" step="0.05" value="1" oninput="document.getElementById('fsv').textContent=this.value+'×';rebuild()">
+        <span class="sval" id="fsv">1×</span>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Séparateur entre sections</label>
+      <select id="sepStyle" onchange="rebuild()">
+        <option value="none">— Aucun</option>
+        <option value="line" selected>── Ligne fine</option>
+        <option value="dots">· · · Points</option>
+        <option value="star">✦ Étoile</option>
+        <option value="diamond">◆ Losange</option>
+        <option value="wave">〜 Vague</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Couleur du séparateur</label>
+      <div class="cpick-wrap" onclick="document.getElementById('colorSep').click()">
+        <input type="color" id="colorSep" value="#7a6540" oninput="rebuild()">
+        <span class="cpick-label" id="colorSepLabel">Séparateur</span>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Palettes prédéfinies</label>
+      <div class="palette-row" id="paletteRow"></div>
+    </div>
+
+    <div class="fg">
+      <label>Mise en page des crédits</label>
+      <div class="toggle-row">
+        <span class="toggle-label">Deux colonnes (rôle | nom)</span>
+        <label class="toggle">
+          <input type="checkbox" id="twoCol" onchange="rebuild()">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview">
+    <div class="cwrap">
+      <canvas id="c" width="1280" height="720"></canvas>
+    </div>
+    <div class="ctrls">
+      <button class="cbtn primary" id="btnPlay" onclick="startPreview()">▶ Prévisualiser</button>
+      <button class="cbtn" id="btnStop" onclick="stop()" disabled>⏹ Arrêter</button>
+      <button class="cbtn danger" id="btnRec" onclick="startRecord()">🔴 Enregistrer</button>
+      <button class="cbtn dl" id="btnDl" onclick="downloadVid()" style="display:none">⬇ Télécharger</button>
+    </div>
+    <div class="status" id="status">Configurez le générique puis lancez la prévisualisation</div>
+  </div>
+</main>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const W = 1280, H = 720;
+
+let playing = false, recMode = false;
+let animId = null, startTs = null;
+let mediaRec = null, chunks = [], blob = null;
+let grainCvs  = [];
+let teamPhoto = null;
+let logoImg   = null;
+let lines     = [];
+let totalH    = 0;
+let dragSrcIdx = null;
+let musicAudio = null;
+let audioCtx   = null;
+let musicDest  = null;
+
+const FONTS = [
+  // ── Classiques cinéma
+  { value:'Playfair Display',    label:'Drame · Élégant classique',      genre:'🎭' },
+  { value:'Cinzel',              label:'Péplum · Romain antique',        genre:'🏛️' },
+  { value:'Bebas Neue',          label:'Action · Cinéma moderne',        genre:'💥' },
+  { value:'Abril Fatface',       label:'Affiche · Vintage bold',         genre:'📽️' },
+  { value:'Special Elite',       label:'Noir · Machine à écrire',        genre:'🕵️' },
+  { value:'Cormorant Garamond',  label:'Romance · Raffiné italique',     genre:'💌' },
+  // ── Genres
+  { value:'Orbitron',            label:'Science-fiction · Futuriste',    genre:'🚀' },
+  { value:'Creepster',           label:'Horreur · Glauque',              genre:'👻' },
+  { value:'UnifrakturMaguntia',  label:'Horreur · Gothique médiéval',   genre:'🦇' },
+  { value:'Pacifico',            label:'Comédie · Joyeux arrondi',       genre:'😄' },
+  { value:'Fredoka One',         label:'Animation · Jeunesse',           genre:'🎈' },
+  { value:'Rye',                 label:'Western · Far West',             genre:'🤠' },
+  { value:'Russo One',           label:'Thriller · Impact',              genre:'🔫' },
+  { value:'Great Vibes',         label:'Romance · Calligraphie',         genre:'💕' },
+  { value:'Permanent Marker',    label:'Documentaire · Marqueur',        genre:'✍️' },
+  { value:'Monoton',             label:'Rétro · Néon années 80',         genre:'🕹️' },
+];
+let selectedFont = 'Playfair Display';
+
+const PALETTES = [
+  { name:'Noir & Or',      sec:'#c9a96e', name_:'#f0e2c4', sep:'#7a6540' },
+  { name:'Blanc & Bleu',   sec:'#4a90d9', name_:'#e8f0f8', sep:'#2a6090' },
+  { name:'Rouge & Crème',  sec:'#cc3333', name_:'#f4e8e0', sep:'#882222' },
+  { name:'Vert Cinéma',    sec:'#4aaa70', name_:'#d8f0e0', sep:'#2a7048' },
+  { name:'Violet Nuit',    sec:'#9966cc', name_:'#e8d8f4', sep:'#664488' },
+  { name:'Orange Sunset',  sec:'#e87030', name_:'#f8e8d0', sep:'#a04820' },
+  { name:'Glace Arctique', sec:'#70b8d8', name_:'#e0f0f8', sep:'#3878a0' },
+  { name:'Rose Vintage',   sec:'#d06890', name_:'#f8e0ea', sep:'#904860' },
+  { name:'Sépia Doux',     sec:'#a07840', name_:'#f0e0c0', sep:'#705028' },
+  { name:'Monochrome',     sec:'#b0b0b0', name_:'#e8e8e8', sep:'#707070' },
+];
+
+function buildPalettes() {
+  const row = document.getElementById('paletteRow');
+  PALETTES.forEach(p => {
+    const s = document.createElement('div');
+    s.className = 'pal-swatch';
+    s.title = p.name;
+    s.style.background = `linear-gradient(135deg, ${p.sec} 50%, ${p.name_} 50%)`;
+    s.onclick = () => applyPalette(p);
+    row.appendChild(s);
+  });
+}
+
+function applyPalette(p) {
+  document.getElementById('colorSec').value  = p.sec;
+  document.getElementById('colorName').value = p.name_;
+  document.getElementById('colorSep').value  = p.sep;
+  rebuild();
+}
+
+const BG = {
+  noir:  '#000000',
+  grain: '#000000',
+  sepia: '#120e06',
+  bleu:  '#03090f',
+  rouge: '#0f0303',
+};
+const BG_TINT = {
+  sepia: 'rgba(90,55,8,0.22)',
+  bleu:  'rgba(8,25,80,0.38)',
+  rouge: 'rgba(80,8,8,0.38)',
+};
+
+let blocks = [
+  { sec:'RÉALISATION',              names:'' },
+  { sec:'ASSISTANT RÉALISATEUR',    names:'' },
+  { sec:'SCÉNARIO',                 names:'' },
+  { sec:'SCRIPT / SCRIPTE',         names:'' },
+  { sec:'CHEF OPÉRATEUR / CADREUR', names:'' },
+  { sec:'ÉCLAIRAGE',                names:'' },
+  { sec:'SON & INGÉNIEUR DU SON',   names:'' },
+  { sec:'PERCHMAN',                 names:'' },
+  { sec:'DÉCORS & COSTUMES',        names:'' },
+  { sec:'ACTEURS & ACTRICES',       names:'' },
+  { sec:"DIRECTION D'ACTEURS",      names:'' },
+  { sec:'MONTAGE',                  names:'' },
+  { sec:'EFFETS SPÉCIAUX / VFX',    names:'' },
+  { sec:'MUSIQUE ORIGINALE',        names:'' },
+  { sec:'PRODUCTION',               names:'' },
+];
+
+// ── INIT ──────────────────────────────────────────────────
+window.addEventListener('load', async () => {
+  buildFontPanel();
+  buildPalettes();
+  renderBlocks();
+  await buildGrain();
+  rebuild();
+  drawIdle();
+  document.addEventListener('click', e => {
+    if (!document.getElementById('fontDropdown').contains(e.target)) closeFontPanel();
+  });
+});
+
+// ── FONT DROPDOWN ─────────────────────────────────────────
+function buildFontPanel() {
+  const panel = document.getElementById('fontPanel');
+  panel.innerHTML = '';
+  FONTS.forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'font-option' + (f.value === selectedFont ? ' selected' : '');
+    d.innerHTML = `<div class="font-option-name" style="font-family:'${f.value}',Georgia,serif">${f.value}</div>
+                   <div class="font-option-label">${f.genre} ${f.label}</div>`;
+    d.onclick = () => selectFont(f.value);
+    panel.appendChild(d);
+  });
+}
+
+function toggleFontPanel() {
+  const open = document.getElementById('fontPanel').classList.contains('open');
+  open ? closeFontPanel() : openFontPanel();
+}
+function openFontPanel() {
+  document.getElementById('fontPanel').classList.add('open');
+  document.getElementById('fontTrigger').classList.add('open');
+}
+function closeFontPanel() {
+  document.getElementById('fontPanel').classList.remove('open');
+  document.getElementById('fontTrigger').classList.remove('open');
+}
+function selectFont(val) {
+  selectedFont = val;
+  document.getElementById('fontTriggerName').textContent = val;
+  buildFontPanel();
+  closeFontPanel();
+  rebuild();
+}
+
+function getFont()      { return selectedFont; }
+function getFS()        { return parseFloat(document.getElementById('fontSize')?.value || 1); }
+function getSecColor()  { return document.getElementById('colorSec').value; }
+function getNameColor() { return document.getElementById('colorName').value; }
+function getSepColor()  { return document.getElementById('colorSep')?.value || '#7a6540'; }
+function getSepStyle()  { return document.getElementById('sepStyle')?.value || 'line'; }
+function getTwoCol()    { return document.getElementById('twoCol')?.checked || false; }
+function getBg()        { return document.getElementById('bgChoice').value; }
+
+// ── GRAIN ─────────────────────────────────────────────────
+async function buildGrain() {
+  for (let f = 0; f < 8; f++) {
+    const gc = document.createElement('canvas');
+    gc.width = W; gc.height = H;
+    const gctx = gc.getContext('2d');
+    const img = gctx.createImageData(W, H);
+    for (let i = 0; i < img.data.length; i += 4) {
+      if (Math.random() < 0.014) {
+        const v = Math.floor(Math.random()*200+55);
+        img.data[i] = img.data[i+1] = img.data[i+2] = v;
+        img.data[i+3] = Math.floor(Math.random()*65+15);
+      }
+    }
+    gctx.putImageData(img, 0, 0);
+    grainCvs.push(gc);
+  }
+}
+
+// ── DRAG & DROP ───────────────────────────────────────────
+function renderBlocks() {
+  const el = document.getElementById('blocks');
+  el.innerHTML = '';
+  blocks.forEach((b, i) => {
+    const d = document.createElement('div');
+    d.className = 'cblock';
+    d.draggable = true;
+    d.dataset.idx = i;
+    d.innerHTML = `
+      <div class="cblock-head">
+        <span class="drag-handle" title="Glisser pour réordonner">⠿</span>
+        <input type="text" value="${b.sec.replace(/"/g,'&quot;')}" placeholder="NOM SECTION"
+               oninput="blocks[${i}].sec=this.value;rebuild()">
+        <button class="btn-rm" onclick="rmBlock(${i})">×</button>
+      </div>
+      <textarea placeholder="Un nom par ligne…"
+                oninput="blocks[${i}].names=this.value;rebuild()">${b.names}</textarea>`;
+    d.addEventListener('dragstart', e => {
+      dragSrcIdx = i; d.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move';
+    });
+    d.addEventListener('dragend', () => {
+      d.classList.remove('dragging');
+      document.querySelectorAll('.cblock').forEach(c => c.classList.remove('drag-over'));
+    });
+    d.addEventListener('dragover', e => {
+      e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('.cblock').forEach(c => c.classList.remove('drag-over'));
+      if (dragSrcIdx !== i) d.classList.add('drag-over');
+    });
+    d.addEventListener('drop', e => {
+      e.preventDefault();
+      if (dragSrcIdx === null || dragSrcIdx === i) return;
+      const moved = blocks.splice(dragSrcIdx, 1)[0];
+      blocks.splice(i, 0, moved);
+      renderBlocks(); rebuild();
+    });
+    el.appendChild(d);
+  });
+}
+
+function addBlock() { blocks.push({ sec:'NOUVELLE SECTION', names:'' }); renderBlocks(); rebuild(); }
+function rmBlock(i) { blocks.splice(i,1); renderBlocks(); rebuild(); }
+
+// ── BUILD LINES ───────────────────────────────────────────
+let rebuildTimer = null;
+function rebuild() { clearTimeout(rebuildTimer); rebuildTimer = setTimeout(_buildLines, 200); }
+
+function _buildLines() {
+  const sp  = parseFloat(document.getElementById('spacing')?.value || 1);
+  const fs  = getFS();
+  const ded = (document.getElementById('dedication')?.value || '').trim();
+  const snd = (document.getElementById('soundCredits')?.value || '').trim();
+  const ls  = [];
+  const add = (type, text, h) => ls.push({ type, text, h });
+
+  add('space', '', 80);
+
+  if (ded) add('dedication', ded, H * 0.6);
+
+  const twoCol = getTwoCol();
+
+  blocks.forEach(b => {
+    if (!b.sec && !b.names) return;
+    const names = b.names.split('\n').map(n=>n.trim()).filter(Boolean);
+    if (twoCol) {
+      // Two-column: sec left, names right, paired rows
+      if (names.length === 0) {
+        add('col2', {left: b.sec.toUpperCase(), right:''}, 42*sp*fs);
+      } else {
+        names.forEach((name, ni) => {
+          add('col2', {left: ni===0 ? b.sec.toUpperCase() : '', right: name}, 42*sp*fs);
+        });
+      }
+      add('gap','',18*sp);
+      add('separator','',20*sp);
+      add('gap','',10*sp);
+    } else {
+      if (b.sec) { add('sec', b.sec.toUpperCase(), 48*sp*fs); add('gap','',14*sp); }
+      names.forEach(name => add('name', name, 38*sp*fs));
+      add('gap','',24*sp);
+      add('separator','',22*sp);
+      add('gap','',18*sp);
+    }
+  });
+
+  if (snd) {
+    add('gap','',24*sp);
+    add('soundtitle','MUSIQUES',44*sp*fs);
+    snd.split('\n').map(n=>n.trim()).filter(Boolean).forEach(line => add('sound', line, 34*sp*fs));
+    add('gap','',64*sp);
+  }
+
+  add('gap','',60);
+  if (teamPhoto) add('photo','',H*0.62);
+  add('endcard','',H*0.55);
+
+  lines  = ls;
+  totalH = ls.reduce((s,l)=>s+l.h, 0);
+}
+
+// ── DRAW ──────────────────────────────────────────────────
+function clr() {
+  const bg = getBg();
+  ctx.fillStyle = BG[bg] || '#000';
+  ctx.fillRect(0,0,W,H);
+  if (BG_TINT[bg]) { ctx.fillStyle = BG_TINT[bg]; ctx.fillRect(0,0,W,H); }
+}
+
+function vignette() {
+  const g = ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*0.68);
+  g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(0.42,'rgba(0,0,0,0.18)');
+  g.addColorStop(0.72,'rgba(0,0,0,0.62)'); g.addColorStop(1,'rgba(0,0,0,0.94)');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+}
+
+function grain(elapsed) {
+  if (getBg() !== 'grain') return;
+  const fi = Math.floor(elapsed/65) % grainCvs.length;
+  ctx.save(); ctx.globalAlpha = 0.52; ctx.drawImage(grainCvs[fi],0,0); ctx.restore();
+}
+
+function border() {
+  ctx.strokeStyle = 'rgba(201,169,110,0.14)'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(0.75,0.75,W-1.5,H-1.5);
+  ctx.fillStyle = 'rgba(201,169,110,0.06)';
+  ctx.fillRect(0,0,W,4); ctx.fillRect(0,H-4,W,4);
+  sprockets();
+}
+
+function sprockets() {
+  const hw=16,hh=10,r=2,mx=10;
+  ctx.fillStyle='rgba(0,0,0,0.75)'; ctx.strokeStyle='rgba(201,169,110,0.18)'; ctx.lineWidth=0.5;
+  for(let i=0;i<6;i++){const y=(H/6)*i+H/12-hh/2;rr(mx,y,hw,hh,r);rr(W-mx-hw,y,hw,hh,r);}
+}
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();ctx.fill();ctx.stroke();
+}
+
+function drawTitle(elapsed, holdMs) {
+  const fi=900, fo=900;
+  let a = elapsed<fi ? elapsed/fi : elapsed<fi+holdMs ? 1 : 1-(elapsed-fi-holdMs)/fo;
+  a = Math.max(0,Math.min(1,a));
+  const title = document.getElementById('filmTitle').value || 'MON FILM';
+  const sub   = document.getElementById('filmSub').value;
+  const f     = getFont();
+  ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center';
+
+  // Logo
+  if (logoImg) {
+    const lr = Math.min(200/logoImg.width, 80/logoImg.height);
+    const lw = logoImg.width*lr, lh = logoImg.height*lr;
+    ctx.drawImage(logoImg, W/2-lw/2, H*0.12, lw, lh);
+  }
+
+  // Titre
+  ctx.font = `bold ${Math.floor(H*0.115*getFS())}px "${f}",Georgia,serif`;
+  ctx.fillStyle = '#fff';
+  const cy = H/2 + (sub ? -28 : 0);
+  ctx.fillText(title.toUpperCase(), W/2, cy);
+  const tw = Math.min(ctx.measureText(title.toUpperCase()).width, 560);
+  ctx.strokeStyle='rgba(201,169,110,0.75)'; ctx.lineWidth=0.8;
+  ctx.beginPath(); ctx.moveTo(W/2-tw/2,cy+18); ctx.lineTo(W/2+tw/2,cy+18); ctx.stroke();
+
+  if (sub) {
+    ctx.font = `italic ${Math.floor(H*0.036*getFS())}px "${f}",Georgia,serif`;
+    ctx.fillStyle = '#c9a96e';
+    ctx.fillText(sub, W/2, H/2+34);
+  }
+
+  // Saison / Épisode
+  const season  = document.getElementById('season')?.value.trim();
+  const episode = document.getElementById('episode')?.value.trim();
+  if (season || episode) {
+    const seText = [season, episode].filter(Boolean).join('  ·  ');
+    ctx.font = `${Math.floor(H*0.022*getFS())}px "${f}",Georgia,serif`;
+    ctx.fillStyle = 'rgba(201,169,110,0.55)';
+    ctx.fillText(seText, W/2, H/2 + (sub ? 66 : 38));
+  }
+  ctx.restore();
+}
+
+function fadeAlpha(py) {
+  const m = H*0.12;
+  if (py<m)   return Math.max(0,py/m);
+  if (py>H-m) return Math.max(0,(H-py)/m);
+  return 1;
+}
+
+function hexToRgba(hex, a) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function wrapText(text, maxW) {
+  const words = text.split(' ');
+  let line = '', result = [];
+  words.forEach(w => {
+    const test = line ? line+' '+w : w;
+    if (ctx.measureText(test).width > maxW && line) { result.push(line); line = w; }
+    else line = test;
+  });
+  if (line) result.push(line);
+  return result;
+}
+
+function drawCredits(scrollY, creditsAlpha=1) {
+  let y = H - scrollY;
+  const f = getFont();
+  ctx.textAlign = 'center';
+
+  lines.forEach(line => {
+
+    if (line.type === 'photo' && teamPhoto) {
+      const cy = y+line.h/2;
+      if (cy > -line.h/2 && cy < H+line.h/2) {
+        const fa = fadeAlpha(cy) * creditsAlpha;
+        const ratio = Math.min(W*0.72/teamPhoto.width, H*0.52/teamPhoto.height);
+        const iw=teamPhoto.width*ratio, ih=teamPhoto.height*ratio;
+        const ix=(W-iw)/2, iy=cy-ih/2;
+        ctx.save(); ctx.globalAlpha=fa;
+        ctx.strokeStyle='rgba(201,169,110,0.5)'; ctx.lineWidth=2;
+        ctx.strokeRect(ix-4,iy-4,iw+8,ih+8);
+        ctx.drawImage(teamPhoto,ix,iy,iw,ih);
+        ctx.font=`italic ${Math.floor(H*0.022*getFS())}px "${f}",Georgia,serif`;
+        ctx.fillStyle='rgba(201,169,110,0.6)';
+        ctx.fillText("L'équipe",W/2,iy+ih+22);
+        ctx.restore();
+      }
+      y+=line.h; return;
+    }
+
+    if (line.type === 'endcard') {
+      const cy = y+line.h/2;
+      if (cy>H*0.08 && cy<H*0.92) {
+        const fa = Math.max(0,Math.min(1,1-Math.abs(cy-H/2)/(H*0.4))) * creditsAlpha;
+        drawEndCard(cy, fa);
+      }
+      y+=line.h; return;
+    }
+
+    if (y+line.h < -10 || y > H+10) { y+=line.h; return; }
+    const fa = fadeAlpha(y+line.h/2);
+
+    if (line.type === 'dedication') {
+      const cy = y+line.h/2;
+      if (cy > -line.h/2 && cy < H+line.h/2) {
+        const fa2 = fadeAlpha(cy);
+        ctx.save(); ctx.globalAlpha = fa2*0.9;
+        // Lignes décoratives
+        ctx.strokeStyle='rgba(201,169,110,0.18)'; ctx.lineWidth=0.7;
+        ctx.beginPath(); ctx.moveTo(W/2-240,cy-68); ctx.lineTo(W/2+240,cy-68); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(W/2-240,cy+68); ctx.lineTo(W/2+240,cy+68); ctx.stroke();
+        // Guillemets décoratifs
+        ctx.font=`${Math.floor(H*0.09)}px Georgia,serif`;
+        ctx.fillStyle='rgba(201,169,110,0.1)';
+        ctx.fillText('\u201C', W/2-220, cy-8);
+        // Texte
+        ctx.font=`italic ${Math.floor(H*0.034*getFS())}px "${f}",Georgia,serif`;
+        ctx.fillStyle='#c8bcab';
+        const dedLines = wrapText(line.text, W*0.58);
+        const lh2 = Math.floor(H*0.048);
+        const startY = cy - (dedLines.length-1)*lh2/2;
+        dedLines.forEach((dl,di) => ctx.fillText(dl, W/2, startY+di*lh2));
+        ctx.restore();
+      }
+      y+=line.h; return;
+    }
+
+    if (line.type === 'sec') {
+      ctx.save(); ctx.globalAlpha=fa*creditsAlpha;
+      ctx.fillStyle = getSecColor();
+      ctx.font=`${Math.floor(H*0.028*getFS())}px "${f}",Georgia,serif`;
+      ctx.letterSpacing='3px';
+      ctx.fillText(line.text, W/2, y+line.h*0.75);
+      ctx.letterSpacing='0px';
+      ctx.strokeStyle=hexToRgba(getSecColor(),0.28); ctx.lineWidth=0.7;
+      const tw=Math.min(ctx.measureText(line.text).width+20,300);
+      const ly=y+line.h*0.55;
+      ctx.beginPath(); ctx.moveTo(W/2-tw/2-100,ly); ctx.lineTo(W/2-tw/2-20,ly); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W/2+tw/2+20,ly); ctx.lineTo(W/2+tw/2+100,ly); ctx.stroke();
+      ctx.restore();
+
+    } else if (line.type === 'name') {
+      ctx.save(); ctx.globalAlpha=fa*creditsAlpha;
+      ctx.fillStyle=getNameColor();
+      ctx.font=`${Math.floor(H*0.036*getFS())}px "${f}",Georgia,serif`;
+      ctx.fillText(line.text, W/2, y+line.h*0.77);
+      ctx.restore();
+
+    } else if (line.type === 'soundtitle') {
+      ctx.save(); ctx.globalAlpha=fa*0.65*creditsAlpha;
+      ctx.fillStyle=getSecColor();
+      ctx.font=`${Math.floor(H*0.022*getFS())}px "${f}",Georgia,serif`;
+      ctx.letterSpacing='5px';
+      ctx.fillText(line.text, W/2, y+line.h*0.78);
+      ctx.letterSpacing='0px';
+      ctx.restore();
+
+    } else if (line.type === 'sound') {
+      ctx.save(); ctx.globalAlpha=fa*0.72*creditsAlpha;
+      ctx.fillStyle=hexToRgba(getNameColor(),0.8);
+      ctx.font=`italic ${Math.floor(H*0.026*getFS())}px "${f}",Georgia,serif`;
+      ctx.fillText(line.text, W/2, y+line.h*0.78);
+      ctx.restore();
+
+    } else if (line.type === 'col2') {
+      ctx.save(); ctx.globalAlpha=fa*creditsAlpha;
+      const cy = y + line.h*0.62;
+      const midX = W/2;
+      const gap = 60;
+      // Thin vertical divider
+      ctx.strokeStyle = hexToRgba(getSepColor(), 0.22);
+      ctx.lineWidth = 0.6;
+      ctx.beginPath(); ctx.moveTo(midX, y+4); ctx.lineTo(midX, y+line.h-4); ctx.stroke();
+      // Left: role (sec color, right-aligned)
+      if (line.text.left) {
+        ctx.fillStyle = getSecColor();
+        ctx.font = `${Math.floor(H*0.022*getFS())}px "${f}",Georgia,serif`;
+        ctx.letterSpacing = '2px';
+        ctx.textAlign = 'right';
+        ctx.fillText(line.text.left, midX - gap, cy);
+        ctx.letterSpacing = '0px';
+      }
+      // Right: name (name color, left-aligned)
+      if (line.text.right) {
+        ctx.fillStyle = getNameColor();
+        ctx.font = `${Math.floor(H*0.030*getFS())}px "${f}",Georgia,serif`;
+        ctx.textAlign = 'left';
+        ctx.fillText(line.text.right, midX + gap, cy);
+      }
+      ctx.textAlign = 'center';
+      ctx.restore();
+      const style = getSepStyle();
+      if (style !== 'none') {
+        const cy = y + line.h/2;
+        const sepAlpha = fadeAlpha(cy) * creditsAlpha * 0.55;
+        if (sepAlpha > 0.01) {
+          ctx.save(); ctx.globalAlpha = sepAlpha;
+          const col = getSepColor();
+          ctx.strokeStyle = col; ctx.fillStyle = col;
+          ctx.lineWidth = 0.8;
+          if (style === 'line') {
+            ctx.beginPath(); ctx.moveTo(W/2-120,cy); ctx.lineTo(W/2+120,cy); ctx.stroke();
+          } else if (style === 'dots') {
+            [-60,-30,0,30,60].forEach(dx => {
+              ctx.beginPath(); ctx.arc(W/2+dx,cy,2,0,Math.PI*2); ctx.fill();
+            });
+          } else if (style === 'star') {
+            ctx.beginPath(); ctx.moveTo(W/2-80,cy); ctx.lineTo(W/2-20,cy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(W/2+20,cy); ctx.lineTo(W/2+80,cy); ctx.stroke();
+            ctx.font=`${Math.floor(H*0.022)}px Georgia,serif`;
+            ctx.textAlign='center'; ctx.fillText('✦',W/2,cy+5);
+          } else if (style === 'diamond') {
+            ctx.beginPath(); ctx.moveTo(W/2-80,cy); ctx.lineTo(W/2-18,cy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(W/2+18,cy); ctx.lineTo(W/2+80,cy); ctx.stroke();
+            ctx.font=`${Math.floor(H*0.02)}px Georgia,serif`;
+            ctx.textAlign='center'; ctx.fillText('◆',W/2,cy+5);
+          } else if (style === 'wave') {
+            ctx.beginPath();
+            for (let wx=-120;wx<=120;wx+=4) {
+              const wy = cy + Math.sin(wx*0.13)*4;
+              wx===-120 ? ctx.moveTo(W/2+wx,wy) : ctx.lineTo(W/2+wx,wy);
+            }
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+      }
+    }
+
+    y+=line.h;
+  });
+}
+
+function drawEndCard(cy, alpha) {
+  const school=document.getElementById('school').value||'Collège du Larzac';
+  const club=document.getElementById('club').value||'Larzac Studio';
+  const year=document.getElementById('year').value||'2025 — 2026';
+  const f=getFont();
+  ctx.save(); ctx.globalAlpha=alpha; ctx.textAlign='center';
+
+  if (logoImg) {
+    const lr=Math.min(110/logoImg.width,46/logoImg.height);
+    const lw=logoImg.width*lr, lh=logoImg.height*lr;
+    ctx.drawImage(logoImg, W/2-lw/2, cy-90, lw, lh);
+  }
+
+  ctx.strokeStyle='rgba(201,169,110,0.4)'; ctx.lineWidth=0.7;
+  ctx.beginPath(); ctx.moveTo(W/2-180,cy-50); ctx.lineTo(W/2+180,cy-50); ctx.stroke();
+
+  ctx.font=`italic bold ${Math.floor(H*0.052*getFS())}px "${f}",Georgia,serif`;
+  ctx.fillStyle='#c9a96e';
+  ctx.fillText(club, W/2, cy-12);
+
+  ctx.font=`${Math.floor(H*0.028*getFS())}px "${f}",Georgia,serif`;
+  ctx.fillStyle='#8a7050';
+  ctx.fillText(school, W/2, cy+24);
+
+  ctx.font=`${Math.floor(H*0.022*getFS())}px "${f}",Georgia,serif`;
+  ctx.fillStyle='#4a4038';
+  ctx.fillText(year, W/2, cy+52);
+
+  ctx.restore();
+}
+
+function drawFrame(elapsed) {
+  const spd=parseInt(document.getElementById('speed').value);
+  const holdMs=parseInt(document.getElementById('tdur').value)*1000;
+  const titleEnd=900+holdMs+900;
+  clr();
+  if (elapsed < titleEnd) drawTitle(elapsed, holdMs);
+  if (elapsed > titleEnd-400) {
+    const scrollY=Math.max(0,elapsed-titleEnd)*spd*0.022;
+    // Compute credits fade-in alpha: 0 while dedication fills screen, then fades in
+    const ded = (document.getElementById('dedication')?.value||'').trim();
+    let creditsAlpha = 1;
+    if (ded) {
+      const sp = parseFloat(document.getElementById('spacing')?.value||1);
+      const dedH = H * 0.6;          // dedication block height
+      const spaceH = 80;             // leading space
+      // dedication bottom y on screen:  H - scrollY + spaceH + dedH
+      const dedBottomY = H - scrollY + spaceH + dedH;
+      // fade starts when dedication bottom crosses screen center (H/2)
+      // fade completes 700px of scroll later
+      const fadeStart = H - (H/2) - spaceH - dedH; // scrollY when dedBottom = H/2
+      const fadeRange = 700;
+      creditsAlpha = Math.max(0, Math.min(1, (scrollY - fadeStart) / fadeRange));
+    }
+    drawCredits(scrollY, creditsAlpha);
+  }
+  vignette(); grain(elapsed); border();
+}
+
+let idleRaf=null;
+function drawIdle() {
+  cancelAnimationFrame(idleRaf);
+  if (playing) return;
+  idleRaf = requestAnimationFrame(ts => {
+    if (!playing) {
+      clr(); vignette();
+      ctx.textAlign='center';
+      ctx.fillStyle='rgba(201,169,110,0.22)';
+      ctx.font=`${Math.floor(H*0.024)}px "Playfair Display",Georgia,serif`;
+      ctx.fillText('GÉNÉRIQUEMAKEUR  ·  LARZAC STUDIO', W/2, H/2-12);
+      ctx.fillStyle='rgba(130,110,80,0.18)';
+      ctx.font=`${Math.floor(H*0.016)}px Georgia,serif`;
+      ctx.fillText("▶ Prévisualiser pour lancer l'animation", W/2, H/2+18);
+      grain(ts); border(); drawIdle();
+    }
+  });
+}
+
+function loop(ts) {
+  if (!playing) return;
+  if (!startTs) startTs=ts;
+  const elapsed=ts-startTs;
+  const spd=parseInt(document.getElementById('speed').value);
+  const holdMs=parseInt(document.getElementById('tdur').value)*1000;
+  const titleEnd=900+holdMs+900;
+  const scrollY=Math.max(0,elapsed-titleEnd)*spd*0.022;
+  drawFrame(elapsed);
+  if (scrollY > totalH+H*0.8) { setTimeout(()=>{ if(recMode)stopRecord();else stop(); },2200); return; }
+  animId=requestAnimationFrame(loop);
+}
+
+function startPreview() {
+  stop(); _buildLines(); playing=true; startTs=null;
+  document.getElementById('btnStop').disabled=false;
+  setStatus('Lecture en cours…',false);
+  musicPlay();
+  animId=requestAnimationFrame(loop);
+}
+
+function stop() {
+  playing=false; recMode=false;
+  cancelAnimationFrame(animId); animId=null; startTs=null;
+  document.getElementById('btnStop').disabled=true;
+  document.getElementById('btnPlay').disabled=false;
+  document.getElementById('btnRec').disabled=false;
+  musicStop();
+  setStatus('Arrêté',false); drawIdle();
+}
+
+function startRecord() {
+  stop(); _buildLines(); chunks=[]; blob=null;
+  document.getElementById('btnDl').style.display='none';
+
+  // Start music first so AudioContext can capture it
+  musicPlay();
+  const musicStream = getMusicStream();
+
+  const videoStream = canvas.captureStream(30);
+  let stream;
+  if (musicStream && musicStream.getAudioTracks().length > 0) {
+    const combined = new MediaStream([
+      ...videoStream.getVideoTracks(),
+      ...musicStream.getAudioTracks()
+    ]);
+    stream = combined;
+  } else {
+    stream = videoStream;
+  }
+
+  const mimes=['video/webm;codecs=vp9,opus','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  const mime=mimes.find(m=>MediaRecorder.isTypeSupported(m))||'video/webm';
+  try { mediaRec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6000000}); }
+  catch(e){ mediaRec=new MediaRecorder(stream); }
+  mediaRec.ondataavailable=e=>{ if(e.data.size>0)chunks.push(e.data); };
+  mediaRec.onstop=()=>{
+    blob=new Blob(chunks,{type:mediaRec.mimeType});
+    const ext2=blob.type.includes('mp4')?'mp4':'webm';
+    recMode=false; playing=false;
+    musicStop();
+    setStatus(`✓ Terminé · ${(blob.size/1048576).toFixed(1)} Mo · ${ext2.toUpperCase()}`,false);
+    document.getElementById('btnDl').style.display='inline-flex';
+    document.getElementById('btnRec').disabled=false;
+    document.getElementById('btnPlay').disabled=false;
+    document.getElementById('btnStop').disabled=true;
+    drawIdle();
+  };
+  playing=true; recMode=true; startTs=null;
+  document.getElementById('btnRec').disabled=true;
+  document.getElementById('btnPlay').disabled=true;
+  document.getElementById('btnStop').disabled=false;
+  setStatus('🔴 Enregistrement en cours…',true);
+  mediaRec.start(100); animId=requestAnimationFrame(loop);
+}
+
+function stopRecord() {
+  playing=false; cancelAnimationFrame(animId); animId=null;
+  if(mediaRec&&mediaRec.state!=='inactive')mediaRec.stop();
+}
+
+function downloadVid() {
+  if(!blob)return;
+  const ext=blob.type.includes('mp4')?'mp4':'webm';
+  const title=(document.getElementById('filmTitle').value||'generique').replace(/\s+/g,'_').toLowerCase();
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`${title}_generique.${ext}`;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },300);
+}
+
+function setStatus(msg,isRec){
+  const el=document.getElementById('status');
+  el.textContent=msg; el.className='status'+(isRec?' rec':'');
+}
+
+// ── IMAGES ────────────────────────────────────────────────
+function loadImgFile(file, cb) {
+  const r=new FileReader();
+  r.onload=ev=>{ const img=new Image(); img.onload=()=>cb(img,ev.target.result); img.src=ev.target.result; };
+  r.readAsDataURL(file);
+}
+
+function loadPhoto(e) {
+  const file=e.target.files[0]; if(!file)return;
+  loadImgFile(file,(img,src)=>{
+    teamPhoto=img;
+    document.getElementById('photozone').innerHTML=`<img src="${src}" style="max-width:100%;max-height:80px;object-fit:cover;border:1px solid var(--border);">`;
+    document.getElementById('photoRm').style.display='block';
+    rebuild();
+  }); e.target.value='';
+}
+function removePhoto() {
+  teamPhoto=null;
+  document.getElementById('photozone').innerHTML='📷 Cliquer pour choisir une image';
+  document.getElementById('photoRm').style.display='none'; rebuild();
+}
+
+function loadLogo(e) {
+  const file=e.target.files[0]; if(!file)return;
+  loadImgFile(file,(img,src)=>{
+    logoImg=img;
+    document.getElementById('logozone').innerHTML=`<img src="${src}" style="max-width:100%;max-height:50px;object-fit:contain;">`;
+    document.getElementById('logoRm').style.display='block';
+    rebuild();
+  }); e.target.value='';
+}
+function removeLogo() {
+  logoImg=null;
+  document.getElementById('logozone').innerHTML='🏷️ Cliquer pour ajouter un logo';
+  document.getElementById('logoRm').style.display='none'; rebuild();
+}
+
+// ── MUSIC ─────────────────────────────────────────────────
+function loadMusic(e) {
+  const file = e.target.files[0]; if(!file) return;
+  if (musicAudio) { musicAudio.pause(); musicAudio = null; }
+  musicAudio = new Audio();
+  musicAudio.src = URL.createObjectURL(file);
+  musicAudio.loop = true;
+  musicAudio.volume = parseFloat(document.getElementById('musicVol').value);
+  const zone = document.getElementById('musiczone');
+  zone.textContent = '🎵 ' + file.name;
+  document.getElementById('musicRm').style.display = 'block';
+  document.getElementById('musicVolRow').style.display = 'flex';
+  e.target.value = '';
+}
+
+function removeMusic() {
+  if (musicAudio) { musicAudio.pause(); URL.revokeObjectURL(musicAudio.src); musicAudio = null; }
+  document.getElementById('musiczone').textContent = '🎵 Importer un fichier audio (MP3, WAV, OGG)';
+  document.getElementById('musicRm').style.display = 'none';
+  document.getElementById('musicVolRow').style.display = 'none';
+}
+
+function musicPlay() {
+  if (!musicAudio) return;
+  musicAudio.currentTime = 0;
+  musicAudio.play().catch(()=>{});
+}
+
+function musicStop() {
+  if (!musicAudio) return;
+  musicAudio.pause();
+  musicAudio.currentTime = 0;
+}
+
+function getMusicStream() {
+  if (!musicAudio) return null;
+  try {
+    if (!audioCtx) audioCtx = new AudioContext();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (!musicDest) musicDest = audioCtx.createMediaStreamDestination();
+    const src = audioCtx.createMediaElementSource(musicAudio);
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = musicAudio.volume;
+    src.connect(gainNode);
+    gainNode.connect(musicDest);
+    gainNode.connect(audioCtx.destination);
+    return musicDest.stream;
+  } catch(err) { return null; }
+}
+
+// ── TEMPLATES ─────────────────────────────────────────────
+function openTemplates()  { document.getElementById('tplOverlay').classList.add('open'); }
+function closeTemplates() { document.getElementById('tplOverlay').classList.remove('open'); }
+
+const TEMPLATES = {
+  cm: {
+    filmTitle:'MON FILM', filmSub:'Un film de Larzac Studio', season:'', episode:'',
+    font:'Playfair Display', bg:'grain', colorSec:'#c9a96e', colorName:'#f0e2c4', colorSep:'#7a6540', sepStyle:'line',
+    dedication:'', soundCredits:'',
+    blocks:[
+      {sec:'RÉALISATION',names:''},{sec:'SCÉNARIO',names:''},{sec:'ACTEURS & ACTRICES',names:''},
+      {sec:'CHEF OPÉRATEUR',names:''},{sec:'SON',names:''},{sec:'MONTAGE',names:''},{sec:'PRODUCTION',names:''}
+    ]
+  },
+  doc: {
+    filmTitle:'MON DOCUMENTAIRE', filmSub:'', season:'', episode:'',
+    font:'Special Elite', bg:'sepia', colorSec:'#d4a868', colorName:'#e8d8b8', colorSep:'#8a6838', sepStyle:'dots',
+    dedication:'Ce film est dédié à…', soundCredits:'',
+    blocks:[
+      {sec:'RÉALISATION & ENQUÊTE',names:''},{sec:'VOIX OFF',names:''},{sec:'PRISE DE SON',names:''},
+      {sec:'IMAGE',names:''},{sec:'MONTAGE',names:''},{sec:'REMERCIEMENTS',names:''}
+    ]
+  },
+  serie: {
+    filmTitle:'MA SÉRIE', filmSub:'', season:'Saison 1', episode:'Épisode 1',
+    font:'Bebas Neue', bg:'bleu', colorSec:'#6ab0e8', colorName:'#c8e0f4', colorSep:'#3a6898', sepStyle:'line',
+    dedication:'', soundCredits:'',
+    blocks:[
+      {sec:'RÉALISATION',names:''},{sec:'SCÉNARIO',names:''},{sec:'ASSISTANT RÉALISATEUR',names:''},
+      {sec:'ACTEURS & ACTRICES',names:''},{sec:'IMAGE',names:''},{sec:'SON',names:''},
+      {sec:'MONTAGE',names:''},{sec:'MUSIQUE ORIGINALE',names:''},{sec:'PRODUCTION',names:''}
+    ]
+  },
+  comedie: {
+    filmTitle:'MON FILM', filmSub:'Une comédie inoubliable', season:'', episode:'',
+    font:'Pacifico', bg:'sepia', colorSec:'#e8a030', colorName:'#f4e0b0', colorSep:'#c08820', sepStyle:'star',
+    dedication:'', soundCredits:'',
+    blocks:[
+      {sec:'RÉALISATION',names:''},{sec:'AVEC',names:''},{sec:'ET AUSSI',names:''},
+      {sec:'CASCADES & GAGS',names:''},{sec:'SON',names:''},{sec:'MONTAGE',names:''}
+    ]
+  },
+  horreur: {
+    filmTitle:'TITRE TERRIFIANT', filmSub:'', season:'', episode:'',
+    font:'Creepster', bg:'noir', colorSec:'#cc2222', colorName:'#d8c8c8', colorSep:'#881111', sepStyle:'diamond',
+    dedication:'', soundCredits:'',
+    blocks:[
+      {sec:'RÉALISATION',names:''},{sec:'SCÉNARIO',names:''},{sec:'ACTEURS',names:''},
+      {sec:'EFFETS SPÉCIAUX',names:''},{sec:'SON & AMBIANCES',names:''},{sec:'MONTAGE',names:''}
+    ]
+  },
+  reportage: {
+    filmTitle:'MON REPORTAGE', filmSub:'', season:'', episode:'',
+    font:'Permanent Marker', bg:'noir', colorSec:'#c8c8c8', colorName:'#e8e8e8', colorSep:'#888888', sepStyle:'line',
+    dedication:'', soundCredits:'',
+    blocks:[
+      {sec:'JOURNALISTE',names:''},{sec:'CAMÉRA',names:''},{sec:'SON',names:''},
+      {sec:'MONTAGE',names:''},{sec:'INTERVENANTS',names:''}
+    ]
+  },
+  sf: {
+    filmTitle:'TITRE DU FILM', filmSub:'Une aventure au-delà des étoiles', season:'', episode:'',
+    font:'Orbitron', bg:'bleu', colorSec:'#40d0f0', colorName:'#b0e8f8', colorSep:'#206888', sepStyle:'line',
+    dedication:'', soundCredits:'',
+    blocks:[
+      {sec:'RÉALISATION',names:''},{sec:'SCÉNARIO',names:''},{sec:'ACTEURS',names:''},
+      {sec:'EFFETS VISUELS',names:''},{sec:'SON & SOUND DESIGN',names:''},
+      {sec:'MONTAGE',names:''},{sec:'PRODUCTION',names:''}
+    ]
+  },
+  western: {
+    filmTitle:'TITRE DU FILM', filmSub:'', season:'', episode:'',
+    font:'Rye', bg:'sepia', colorSec:'#c87820', colorName:'#f0d890', colorSep:'#805010', sepStyle:'star',
+    dedication:'', soundCredits:'',
+    blocks:[
+      {sec:'RÉALISATION',names:''},{sec:'SCÉNARIO',names:''},{sec:'AVEC',names:''},
+      {sec:'IMAGE',names:''},{sec:'SON',names:''},{sec:'MONTAGE',names:''}
+    ]
+  },
+  romance: {
+    filmTitle:'TITRE DU FILM', filmSub:'Une histoire d\'amour', season:'', episode:'',
+    font:'Great Vibes', bg:'grain', colorSec:'#e880a8', colorName:'#f8d0e0', colorSep:'#a04868', sepStyle:'wave',
+    dedication:'À ceux qui croient encore en l\'amour…', soundCredits:'',
+    blocks:[
+      {sec:'Réalisation',names:''},{sec:'Scénario',names:''},{sec:'Avec',names:''},
+      {sec:'Image',names:''},{sec:'Son',names:''},{sec:'Montage',names:''}
+    ]
+  },
+  gothique: {
+    filmTitle:'TITRE DU FILM', filmSub:'', season:'', episode:'',
+    font:'UnifrakturMaguntia', bg:'noir', colorSec:'#880000', colorName:'#c0a8a8', colorSep:'#500000', sepStyle:'diamond',
+    dedication:'', soundCredits:'',
+    blocks:[
+      {sec:'Réalisation',names:''},{sec:'Scénario',names:''},{sec:'Acteurs',names:''},
+      {sec:'Décors & Costumes',names:''},{sec:'Son & Atmosphères',names:''},{sec:'Montage',names:''}
+    ]
+  },
+  retro80: {
+    filmTitle:'TITRE DU FILM', filmSub:'', season:'', episode:'',
+    font:'Monoton', bg:'noir', colorSec:'#f020c0', colorName:'#20f0f0', colorSep:'#a01080', sepStyle:'line',
+    dedication:'', soundCredits:'',
+    blocks:[
+      {sec:'RÉALISATION',names:''},{sec:'SCÉNARIO',names:''},{sec:'AVEC',names:''},
+      {sec:'IMAGE',names:''},{sec:'SON & SYNTHÉS',names:''},{sec:'MONTAGE',names:''}
+    ]
+  },
+  peplum: {
+    filmTitle:'TITRE DU FILM', filmSub:'Une épopée antique', season:'', episode:'',
+    font:'Cinzel', bg:'sepia', colorSec:'#c8941a', colorName:'#f0dea0', colorSep:'#806010', sepStyle:'line',
+    dedication:'', soundCredits:'',
+    blocks:[
+      {sec:'RÉALISATION',names:''},{sec:'SCÉNARIO',names:''},{sec:'ACTEURS & ACTRICES',names:''},
+      {sec:'DÉCORS & COSTUMES',names:''},{sec:'IMAGE',names:''},
+      {sec:'SON',names:''},{sec:'MONTAGE',names:''},{sec:'PRODUCTION',names:''}
+    ]
+  }
+};
+
+function applyTemplate(key) {
+  const t = TEMPLATES[key]; if (!t) return;
+  applyData(t);
+  closeTemplates();
+}
+
+// ── SAVE / LOAD ───────────────────────────────────────────
+function getData() {
+  return {
+    filmTitle: document.getElementById('filmTitle').value,
+    filmSub:   document.getElementById('filmSub').value,
+    season:    document.getElementById('season').value,
+    episode:   document.getElementById('episode').value,
+    dedication: document.getElementById('dedication').value,
+    soundCredits: document.getElementById('soundCredits').value,
+    school: document.getElementById('school').value,
+    club:   document.getElementById('club').value,
+    year:   document.getElementById('year').value,
+    speed:  document.getElementById('speed').value,
+    tdur:   document.getElementById('tdur').value,
+    spacing:document.getElementById('spacing').value,
+    fontSize:document.getElementById('fontSize').value,
+    font:   selectedFont,
+    colorSec:  document.getElementById('colorSec').value,
+    colorName: document.getElementById('colorName').value,
+    colorSep:  document.getElementById('colorSep').value,
+    sepStyle:  document.getElementById('sepStyle').value,
+    twoCol:    document.getElementById('twoCol').checked,
+    bg: document.getElementById('bgChoice').value,
+    blocks
+  };
+}
+
+function applyData(d) {
+  const set=(id,v)=>{ if(v!==undefined&&document.getElementById(id))document.getElementById(id).value=v; };
+  set('filmTitle',d.filmTitle); set('filmSub',d.filmSub);
+  set('season',d.season); set('episode',d.episode);
+  set('dedication',d.dedication); set('soundCredits',d.soundCredits);
+  set('school',d.school); set('club',d.club); set('year',d.year);
+  if(d.speed){ set('speed',d.speed); document.getElementById('sv').textContent=d.speed; }
+  if(d.tdur){ set('tdur',d.tdur); document.getElementById('tv').textContent=d.tdur+'s'; }
+  if(d.spacing){ set('spacing',d.spacing); document.getElementById('spv').textContent=d.spacing+'×'; }
+  if(d.fontSize){ set('fontSize',d.fontSize); document.getElementById('fsv').textContent=d.fontSize+'×'; }
+  if(d.font) selectFont(d.font);
+  if(d.colorSec)  set('colorSec',d.colorSec);
+  if(d.colorName) set('colorName',d.colorName);
+  if(d.colorSep)  set('colorSep',d.colorSep);
+  if(d.sepStyle)  set('sepStyle',d.sepStyle);
+  if(d.twoCol !== undefined) document.getElementById('twoCol').checked = d.twoCol;
+  if(d.bg) set('bgChoice',d.bg);
+  if(d.blocks){ blocks=d.blocks; renderBlocks(); }
+  rebuild();
+}
+
+function saveJSON() {
+  const title=(document.getElementById('filmTitle').value||'generique').replace(/\s+/g,'_').toLowerCase();
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(getData(),null,2));
+  a.download=`${title}_generique.json`;
+  document.body.appendChild(a); a.click(); setTimeout(()=>document.body.removeChild(a),300);
+}
+
+function loadJSON(e) {
+  const file=e.target.files[0]; if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{ try{applyData(JSON.parse(ev.target.result));}catch{alert('Fichier JSON invalide');} };
+  r.readAsText(file); e.target.value='';
+}
+</script>
+<!-- TEMPLATE MODAL — en fin de body pour éviter le clipping overflow -->
+<div class="tpl-overlay" id="tplOverlay" onclick="if(event.target===this)closeTemplates()">
+  <div class="tpl-modal">
+    <div class="tpl-header">
+      <h2>🎬 CHOISIR UN TEMPLATE</h2>
+      <button class="tpl-close" onclick="closeTemplates()">×</button>
+    </div>
+    <div class="tpl-grid">
+      <div class="tpl-card" onclick="applyTemplate('cm')">
+        <div class="tpl-card-title">🎭 Court métrage</div>
+        <div class="tpl-card-desc">Réalisation, scénario, acteurs, son, montage, production. Style sobre et élégant.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('doc')">
+        <div class="tpl-card-title">🎥 Documentaire</div>
+        <div class="tpl-card-desc">Réalisation, recherche, voix off, prise de son, montage, remerciements.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('serie')">
+        <div class="tpl-card-title">📺 Série / Épisode</div>
+        <div class="tpl-card-desc">Avec champs saison et épisode. Équipe technique complète sur plusieurs épisodes.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('comedie')">
+        <div class="tpl-card-title">😄 Comédie</div>
+        <div class="tpl-card-desc">Ton léger, police Pacifico, fond sépia. Mise en avant des acteurs et gags.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('horreur')">
+        <div class="tpl-card-title">👻 Horreur</div>
+        <div class="tpl-card-desc">Police Creepster, fond noir pur, couleurs rouge sang. Atmosphère sombre.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('reportage')">
+        <div class="tpl-card-title">📰 Reportage</div>
+        <div class="tpl-card-desc">Journaliste, caméraman, ingénieur son, monteur. Style sobre et direct.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('sf')">
+        <div class="tpl-card-title">🚀 Science-fiction</div>
+        <div class="tpl-card-desc">Police Orbitron, fond bleu nuit, couleurs cyan. Ambiance futuriste.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('western')">
+        <div class="tpl-card-title">🤠 Western</div>
+        <div class="tpl-card-desc">Police Rye, fond sépia chaud, ocre et brun. Far West authentique.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('romance')">
+        <div class="tpl-card-title">💕 Romance</div>
+        <div class="tpl-card-desc">Police Great Vibes, fond grain, rose et crème. Doux et élégant.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('gothique')">
+        <div class="tpl-card-title">🦇 Gothique</div>
+        <div class="tpl-card-desc">Police UnifrakturMaguntia, fond noir, rouge sombre. Médiéval et mystérieux.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('retro80')">
+        <div class="tpl-card-title">🕹️ Rétro années 80</div>
+        <div class="tpl-card-desc">Police Monoton, fond noir, couleurs néon rose et cyan. Synthwave.</div>
+      </div>
+      <div class="tpl-card" onclick="applyTemplate('peplum')">
+        <div class="tpl-card-title">🏛️ Péplum / Historique</div>
+        <div class="tpl-card-desc">Police Cinzel, fond sépia, or antique. Grandeur épique.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

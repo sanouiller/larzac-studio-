@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiche Technique — Club Audiovisuel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#1a1a1a;--paper:#f5f2ee;--cream:#ede8e0;--accent:#c8410a;--accent-light:#f0ddd4;--rule:#c8bfb0;--muted:#7a7267;--white:#ffffff; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;}
+  #topbar{background:var(--ink);color:var(--white);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;gap:1rem;}
+  #topbar .brand{font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;opacity:0.7;white-space:nowrap;}
+  #topbar .actions{display:flex;gap:0.5rem;flex-wrap:wrap;}
+  .btn{font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.45rem 1rem;border:1px solid transparent;cursor:pointer;border-radius:2px;transition:all 0.15s;white-space:nowrap;}
+  .btn-ghost{background:transparent;border-color:rgba(255,255,255,0.25);color:rgba(255,255,255,0.8);}
+  .btn-ghost:hover{border-color:white;color:white;}
+  .btn-accent{background:var(--accent);border-color:var(--accent);color:white;}
+  .btn-accent:hover{background:#a83508;}
+  #app{max-width:900px;margin:0 auto;padding:2.5rem 1.5rem 4rem;}
+  .page-header{border-bottom:2px solid var(--ink);padding-bottom:1.2rem;margin-bottom:2.5rem;display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;}
+  .page-header h1{font-family:'DM Serif Display',serif;font-size:2.4rem;line-height:1;}
+  .page-header h1 em{color:var(--accent);font-style:italic;}
+  .doc-id{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);text-align:right;line-height:1.6;}
+  .section{background:#fff;border:1px solid var(--rule);border-radius:3px;margin-bottom:1.5rem;overflow:hidden;}
+  .section-header{background:var(--ink);padding:0.7rem 1.4rem;display:flex;align-items:center;gap:0.8rem;}
+  .section-header h2{font-family:'DM Mono',monospace;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:white;flex:1;}
+  .section-num{font-family:'DM Mono',monospace;font-size:0.65rem;color:rgba(255,255,255,0.4);}
+  .section-body{padding:1.4rem;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  .col-span-2{grid-column:span 2;}
+  .field{display:flex;flex-direction:column;gap:0.35rem;}
+  .field label{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+  .field input,.field textarea,.field select{font-family:'DM Sans',sans-serif;font-size:0.88rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:2px;padding:0.5rem 0.7rem;width:100%;transition:border-color 0.15s;outline:none;}
+  .field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7267'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.7rem center;padding-right:2rem;cursor:pointer;}
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);background:white;}
+  .field input::placeholder,.field textarea::placeholder{color:var(--rule);}
+  .field textarea{min-height:70px;resize:vertical;}
+  .nom-custom{display:none;margin-top:0.4rem;}
+  .nom-custom.visible{display:block;}
+  .repeat-list{display:flex;flex-direction:column;gap:0.75rem;}
+  .repeat-row{display:grid;gap:0.7rem;align-items:end;background:var(--paper);border:1px solid var(--cream);border-radius:2px;padding:0.9rem 2.2rem 0.9rem 1rem;position:relative;}
+  .repeat-row .del-btn{position:absolute;top:0.6rem;right:0.6rem;width:22px;height:22px;background:none;border:1px solid var(--rule);border-radius:2px;color:var(--muted);cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+  .repeat-row .del-btn:hover{background:var(--accent);border-color:var(--accent);color:white;}
+  .add-row-btn{display:flex;align-items:center;gap:0.5rem;font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:none;border:1px dashed var(--accent);border-radius:2px;padding:0.55rem 1rem;cursor:pointer;margin-top:0.5rem;width:100%;justify-content:center;transition:all 0.15s;}
+  .add-row-btn:hover{background:var(--accent-light);}
+  .scene-card{border:1px solid var(--rule);border-radius:3px;margin-bottom:0.9rem;overflow:hidden;background:var(--paper);}
+  .scene-card-header{background:var(--cream);padding:0.6rem 1rem;display:flex;align-items:center;gap:0.8rem;border-bottom:1px solid var(--rule);}
+  .scene-num-badge{font-family:'DM Mono',monospace;font-size:0.65rem;background:var(--accent);color:white;padding:0.15rem 0.5rem;border-radius:2px;white-space:nowrap;}
+  .scene-card-header input{flex:1;font-family:'DM Serif Display',serif;font-size:1rem;border:none;background:transparent;color:var(--ink);outline:none;}
+  .scene-del{background:none;border:1px solid var(--rule);border-radius:2px;color:var(--muted);cursor:pointer;font-size:0.75rem;padding:0.2rem 0.5rem;transition:all 0.15s;white-space:nowrap;}
+  .scene-del:hover{background:var(--accent);border-color:var(--accent);color:white;}
+  .scene-card-body{padding:1rem;display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;}
+  .planning-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+  .planning-table thead tr{background:var(--cream);border-bottom:2px solid var(--rule);}
+  .planning-table thead th{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:0.6rem 0.7rem;text-align:left;font-weight:500;}
+  .planning-table tbody tr{border-bottom:1px solid var(--cream);}
+  .planning-table tbody tr:hover{background:#faf9f7;}
+  .planning-table td{padding:0.35rem 0.4rem;vertical-align:middle;}
+  .planning-table input{font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--ink);background:transparent;border:1px solid transparent;border-radius:2px;padding:0.3rem 0.4rem;width:100%;outline:none;transition:all 0.15s;}
+  .planning-table input:focus{background:white;border-color:var(--accent);}
+  .planning-table td:last-child{width:30px;}
+  #toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--ink);color:white;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.08em;padding:0.6rem 1.2rem;border-radius:2px;opacity:0;pointer-events:none;transition:opacity 0.3s;z-index:999;}
+  #toast.show{opacity:1;}
+  @media print{#topbar{display:none!important;}body{background:white;}#app{padding:1rem;max-width:100%;}.del-btn,.add-row-btn,.scene-del{display:none!important;}.section{break-inside:avoid;}}
+  @media(max-width:640px){.grid-2{grid-template-columns:1fr;}.col-span-2{grid-column:1;}.scene-card-body{grid-template-columns:1fr;}.page-header{flex-direction:column;align-items:flex-start;}#topbar{height:auto;padding:0.5rem 1rem;flex-direction:column;align-items:flex-start;}}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <span class="brand">📽 Club AV — Fiche Technique</span>
+  <div class="actions">
+    <button class="btn btn-ghost" onclick="loadJSON()">⬆ Charger JSON</button>
+    <button class="btn btn-ghost" onclick="saveJSON()">⬇ Sauvegarder JSON</button>
+    <button class="btn btn-ghost" onclick="shareLink()">🔗 Partager</button>
+    <button class="btn btn-accent" onclick="window.print()">🖨 Imprimer</button>
+  </div>
+</div>
+<input type="file" id="file-input" accept=".json" style="display:none" onchange="onFileLoad(event)">
+<div id="toast"></div>
+<div id="app">
+  <div class="page-header">
+    <h1>Fiche <em>Technique</em></h1>
+    <div class="doc-id" id="doc-meta"></div>
+  </div>
+  <div class="section">
+    <div class="section-header"><span class="section-num">01</span><h2>Projet</h2></div>
+    <div class="section-body">
+      <div class="grid-2">
+        <div class="field col-span-2"><label>Titre du projet</label><input type="text" id="proj_titre" placeholder="Titre du film / reportage / clip…"></div>
+        <div class="field"><label>Genre / Format</label><input type="text" id="proj_genre" placeholder="Court-métrage, documentaire, clip…"></div>
+        <div class="field"><label>Durée estimée</label><input type="text" id="proj_duree" placeholder="ex. 12 min"></div>
+        <div class="field"><label>Date de début tournage</label><input type="date" id="proj_date_debut"></div>
+        <div class="field"><label>Date de fin tournage</label><input type="date" id="proj_date_fin"></div>
+        <div class="field col-span-2"><label>Synopsis / Description</label><textarea id="proj_synopsis" placeholder="Résumé du projet, intentions artistiques…"></textarea></div>
+        <div class="field"><label>Responsable du projet</label><input type="text" id="proj_responsable" placeholder="Nom, prénom"></div>
+        <div class="field"><label>Contact / Email</label><input type="text" id="proj_contact" placeholder="email@exemple.fr"></div>
+        <div class="field"><label>Budget estimé (€)</label><input type="text" id="proj_budget" placeholder="0"></div>
+        <div class="field"><label>Statut</label><input type="text" id="proj_statut" placeholder="En développement, En tournage, Post-prod…"></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header"><span class="section-num">02</span><h2>Équipe</h2></div>
+    <div class="section-body">
+      <div class="repeat-list" id="equipe-list"></div>
+      <button class="add-row-btn" onclick="addEquipe()">+ Ajouter un membre</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header"><span class="section-num">03</span><h2>Intervenants Extérieurs</h2></div>
+    <div class="section-body">
+      <div class="repeat-list" id="intervenants-list"></div>
+      <button class="add-row-btn" onclick="addIntervenant()">+ Ajouter un intervenant</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header"><span class="section-num">04</span><h2>Matériel</h2></div>
+    <div class="section-body">
+      <div class="repeat-list" id="materiel-list"></div>
+      <button class="add-row-btn" onclick="addMateriel()">+ Ajouter un équipement</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header"><span class="section-num">05</span><h2>Lieux de tournage</h2></div>
+    <div class="section-body">
+      <div class="repeat-list" id="lieux-list"></div>
+      <button class="add-row-btn" onclick="addLieu()">+ Ajouter un lieu</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header"><span class="section-num">06</span><h2>Scènes</h2></div>
+    <div class="section-body">
+      <div id="scenes-list"></div>
+      <button class="add-row-btn" onclick="addScene()">+ Ajouter une scène</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header"><span class="section-num">07</span><h2>Planning</h2></div>
+    <div class="section-body" style="overflow-x:auto">
+      <table class="planning-table">
+        <thead><tr><th>Date</th><th>Début</th><th>Fin</th><th>Lieu</th><th>Scène(s)</th><th>Équipe</th><th>Notes</th><th></th></tr></thead>
+        <tbody id="planning-tbody"></tbody>
+      </table>
+      <button class="add-row-btn" onclick="addPlanning()">+ Ajouter une journée</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header"><span class="section-num">08</span><h2>Notes générales</h2></div>
+    <div class="section-body">
+      <div class="field"><label>Remarques, contraintes, autorisations…</label><textarea id="notes_generales" style="min-height:100px" placeholder="Informations complémentaires…"></textarea></div>
+    </div>
+  </div>
+</div>
+<script>
+const MEMBRES=['Raphaël','Timéo','Izallys','Léonie','Auriane','Camille','Yogan'];
+const ROLES=['Réalisateur·rice','Chef·fe opérateur·rice','Cadreur·euse','Assistant·e caméra','Ingénieur·e du son','Perchiste','Directeur·rice artistique','Chef·fe électricien·ne','Machiniste','Monteur·euse','Étalonneur·euse','Mixeur·euse son','Photographe de plateau','Scripte','Régisseur·euse','Producteur·rice','Chargé·e de production'];
+let state={projet:{},equipe:[],intervenants:[],materiel:[],lieux:[],scenes:[],planning:[],notes:''};
+let sceneCounter=0;
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const val=(sel,p=document)=>{const e=p.querySelector(sel);return e?e.value:'';};
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400);}
+function updateMeta(){document.getElementById('doc-meta').innerHTML='Créé le '+new Date().toLocaleDateString('fr-FR')+'<br>v1.0';}
+function buildSelectOptions(sel){
+  const opts=MEMBRES.map(m=>`<option value="${m}"${sel===m?' selected':''}>${m}</option>`).join('');
+  const autreSelected=sel&&!MEMBRES.includes(sel);
+  return`<option value="">— Choisir —</option>${opts}<option value="__autre__"${autreSelected?' selected':''}>Autre…</option>`;
+}
+function buildRoleOptions(sel){
+  const opts=ROLES.map(r=>`<option value="${r}"${sel===r?' selected':''}>${r}</option>`).join('');
+  const autreSelected=sel&&!ROLES.includes(sel);
+  return`<option value="">— Choisir —</option>${opts}<option value="__autre_role__"${autreSelected?' selected':''}>Autre…</option>`;
+}
+function toggleCustomNom(s){
+  const c=s.closest('.repeat-row').querySelector('.nom-custom');
+  if(s.value==='__autre__'){c.classList.add('visible');c.focus();}
+  else{c.classList.remove('visible');c.value='';}
+}
+function toggleCustomRole(s){
+  const c=s.closest('.repeat-row').querySelector('.role-custom');
+  if(s.value==='__autre_role__'){c.classList.add('visible');c.focus();}
+  else{c.classList.remove('visible');c.value='';}
+}
+function getEquipeNom(row){
+  const s=row.querySelector('.e-select');
+  return s.value==='__autre__'?val('.e-nom-custom',row):s.value;
+}
+function getEquipeRole(row){
+  const s=row.querySelector('.e-role-select');
+  return s.value==='__autre_role__'?val('.role-custom',row):s.value;
+}
+function addEquipe(d={}){
+  const list=document.getElementById('equipe-list');
+  const div=document.createElement('div');
+  div.className='repeat-row';
+  div.style.gridTemplateColumns='1fr 1fr';
+  const savedNom=d.nom||'';
+  const isCustomNom=savedNom!==''&&!MEMBRES.includes(savedNom);
+  const savedRole=d.role||'';
+  const isCustomRole=savedRole!==''&&!ROLES.includes(savedRole);
+  div.innerHTML=`<button class="del-btn" onclick="this.closest('.repeat-row').remove()">×</button>
+    <div class="field"><label>Prénom</label>
+      <select class="e-select" onchange="toggleCustomNom(this)">${buildSelectOptions(isCustomNom?'__autre__':savedNom)}</select>
+      <input type="text" class="e-nom-custom nom-custom${isCustomNom?' visible':''}" value="${esc(isCustomNom?savedNom:'')}" placeholder="Saisir un prénom…">
+    </div>
+    <div class="field"><label>Rôle</label>
+      <select class="e-role-select" onchange="toggleCustomRole(this)">${buildRoleOptions(isCustomRole?'__autre_role__':savedRole)}</select>
+      <input type="text" class="role-custom nom-custom${isCustomRole?' visible':''}" value="${esc(isCustomRole?savedRole:'')}" placeholder="Saisir un rôle…">
+    </div>`;
+  list.appendChild(div);
+}
+function addIntervenant(d={}){
+  const list=document.getElementById('intervenants-list');
+  const div=document.createElement('div');
+  div.className='repeat-row';
+  div.style.gridTemplateColumns='2fr 2fr 2fr 1.5fr';
+  div.innerHTML=`<button class="del-btn" onclick="this.closest('.repeat-row').remove()">×</button>
+    <div class="field"><label>Nom / Structure</label><input type="text" class="i-nom" value="${esc(d.nom)}" placeholder="Nom ou société"></div>
+    <div class="field"><label>Prestation</label><input type="text" class="i-prestation" value="${esc(d.prestation)}" placeholder="Location caméra, Acteur…"></div>
+    <div class="field"><label>Contact</label><input type="text" class="i-contact" value="${esc(d.contact)}" placeholder="email / tel"></div>
+    <div class="field"><label>Coût estimé (€)</label><input type="text" class="i-cout" value="${esc(d.cout)}" placeholder="0"></div>`;
+  list.appendChild(div);
+}
+const MATERIEL=['GH4 A','GH4 B','GH4 C','Blackmagic','Pocket 3','Perche NTG2','Enregistreur Zoom','Led1','Led2','Led3','Moniteur','Micro canon Sennheiser','Micro canon Rode','Lampe Neewer','Tube led portable','Carré led caméra','Trépied sur roues','Trépied vidéo','Drone DJI Mini 2','Monopode','Support épaule'];
+function buildMaterielOptions(sel){
+  const opts=MATERIEL.map(m=>`<option value="${m}"${sel===m?' selected':''}>${m}</option>`).join('');
+  const autreSelected=sel&&!MATERIEL.includes(sel);
+  return`<option value="">— Choisir —</option>${opts}<option value="__autre_mat__"${autreSelected?' selected':''}>Autre…</option>`;
+}
+function toggleCustomMat(s){
+  const c=s.closest('.repeat-row').querySelector('.mat-custom');
+  if(s.value==='__autre_mat__'){c.classList.add('visible');c.focus();}
+  else{c.classList.remove('visible');c.value='';}
+}
+function getMaterielNom(row){
+  const s=row.querySelector('.m-select');
+  return s.value==='__autre_mat__'?val('.mat-custom',row):s.value;
+}
+function addMateriel(d={}){
+  const list=document.getElementById('materiel-list');
+  const div=document.createElement('div');
+  div.className='repeat-row';
+  div.style.gridTemplateColumns='2fr 0.6fr 1.5fr 2fr';
+  const savedNom=d.nom||'';
+  const isCustom=savedNom!==''&&!MATERIEL.includes(savedNom);
+  div.innerHTML=`<button class="del-btn" onclick="this.closest('.repeat-row').remove()">x</button>
+    <div class="field"><label>Équipement</label>
+      <select class="m-select" onchange="toggleCustomMat(this)">${buildMaterielOptions(isCustom?'__autre_mat__':savedNom)}</select>
+      <input type="text" class="mat-custom nom-custom${isCustom?' visible':''}" value="${esc(isCustom?savedNom:'')}" placeholder="Nom de l'équipement…">
+    </div>
+    <div class="field"><label>Qté</label><input type="number" class="m-qte" value="${esc(d.qte||'1')}" min="1"></div>
+    <div class="field"><label>Propriétaire</label><input type="text" class="m-proprio" value="${esc(d.proprio)}" placeholder="Club, Location…"></div>
+    <div class="field"><label>Notes</label><input type="text" class="m-notes" value="${esc(d.notes)}" placeholder="Chargeur, accessoires…"></div>`;
+  list.appendChild(div);
+}
+function addLieu(d={}){
+  const list=document.getElementById('lieux-list');
+  const div=document.createElement('div');
+  div.className='repeat-row';
+  div.style.gridTemplateColumns='2fr 2fr 1.5fr 1.5fr';
+  div.innerHTML=`<button class="del-btn" onclick="this.closest('.repeat-row').remove()">×</button>
+    <div class="field"><label>Nom du lieu</label><input type="text" class="l-nom" value="${esc(d.nom)}" placeholder="Salle polyvalente, Forêt…"></div>
+    <div class="field"><label>Adresse</label><input type="text" class="l-adresse" value="${esc(d.adresse)}" placeholder="123 rue…"></div>
+    <div class="field"><label>Autorisation</label><input type="text" class="l-auth" value="${esc(d.auth)}" placeholder="Obtenue / En cours / N/A"></div>
+    <div class="field"><label>Contact sur place</label><input type="text" class="l-contact" value="${esc(d.contact)}" placeholder="Nom / tel"></div>`;
+  list.appendChild(div);
+}
+function addScene(d={}){
+  sceneCounter++;
+  const list=document.getElementById('scenes-list');
+  const card=document.createElement('div');
+  card.className='scene-card';
+  card.innerHTML=`<div class="scene-card-header">
+    <span class="scene-num-badge">SC. ${String(sceneCounter).padStart(2,'0')}</span>
+    <input type="text" class="sc-titre" value="${esc(d.titre)}" placeholder="Titre de la scène…">
+    <button class="scene-del" onclick="this.closest('.scene-card').remove()">Supprimer</button>
+  </div>
+  <div class="scene-card-body">
+    <div class="field"><label>Lieu</label><input type="text" class="sc-lieu" value="${esc(d.lieu)}" placeholder="INT / EXT — Lieu"></div>
+    <div class="field"><label>Moment</label><input type="text" class="sc-heure" value="${esc(d.heure)}" placeholder="Jour, Nuit, Crépuscule…"></div>
+    <div class="field" style="grid-column:span 2"><label>Description de l'action</label><textarea class="sc-action" placeholder="Ce qui se passe dans cette scène…">${esc(d.action)}</textarea></div>
+    <div class="field"><label>Personnages / Sujets</label><input type="text" class="sc-perso" value="${esc(d.perso)}" placeholder="Noms des personnes à l'écran"></div>
+    <div class="field"><label>Durée estimée</label><input type="text" class="sc-duree" value="${esc(d.duree)}" placeholder="ex. 2 min 30"></div>
+    <div class="field" style="grid-column:span 2"><label>Notes techniques</label><input type="text" class="sc-tech" value="${esc(d.tech)}" placeholder="Matériel spécifique, contraintes…"></div>
+  </div>`;
+  list.appendChild(card);
+}
+function addPlanning(d={}){
+  const tbody=document.getElementById('planning-tbody');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input type="date" class="p-date" value="${esc(d.date)}"></td>
+    <td><input type="time" class="p-hdebut" value="${esc(d.hdebut)}"></td>
+    <td><input type="time" class="p-hfin" value="${esc(d.hfin)}"></td>
+    <td><input type="text" class="p-lieu" value="${esc(d.lieu)}" placeholder="Lieu"></td>
+    <td><input type="text" class="p-scenes" value="${esc(d.scenes)}" placeholder="SC.01…"></td>
+    <td><input type="text" class="p-equipe" value="${esc(d.equipe)}" placeholder="Membres"></td>
+    <td><input type="text" class="p-notes" value="${esc(d.notes)}" placeholder="Notes…"></td>
+    <td><button class="del-btn" style="position:static;width:22px;height:22px;display:flex;align-items:center;justify-content:center" onclick="this.closest('tr').remove()">×</button></td>`;
+  tbody.appendChild(tr);
+}
+function collectState(){
+  ['titre','genre','duree','date_debut','date_fin','synopsis','responsable','contact','budget','statut'].forEach(k=>{state.projet[k]=val('#proj_'+k);});
+  state.equipe=[...document.querySelectorAll('#equipe-list .repeat-row')].map(r=>({nom:getEquipeNom(r),role:getEquipeRole(r)}));
+  state.intervenants=[...document.querySelectorAll('#intervenants-list .repeat-row')].map(r=>({nom:val('.i-nom',r),prestation:val('.i-prestation',r),contact:val('.i-contact',r),cout:val('.i-cout',r)}));
+  state.materiel=[...document.querySelectorAll('#materiel-list .repeat-row')].map(r=>({nom:getMaterielNom(r),qte:val('.m-qte',r),proprio:val('.m-proprio',r),notes:val('.m-notes',r)}));
+  state.lieux=[...document.querySelectorAll('#lieux-list .repeat-row')].map(r=>({nom:val('.l-nom',r),adresse:val('.l-adresse',r),auth:val('.l-auth',r),contact:val('.l-contact',r)}));
+  state.scenes=[...document.querySelectorAll('#scenes-list .scene-card')].map(c=>({titre:val('.sc-titre',c),lieu:val('.sc-lieu',c),heure:val('.sc-heure',c),action:c.querySelector('.sc-action')?.value||'',perso:val('.sc-perso',c),duree:val('.sc-duree',c),tech:val('.sc-tech',c)}));
+  state.planning=[...document.querySelectorAll('#planning-tbody tr')].map(t=>({date:val('.p-date',t),hdebut:val('.p-hdebut',t),hfin:val('.p-hfin',t),lieu:val('.p-lieu',t),scenes:val('.p-scenes',t),equipe:val('.p-equipe',t),notes:val('.p-notes',t)}));
+  state.notes=document.getElementById('notes_generales').value;
+}
+function restoreState(){
+  const p=state.projet||{};
+  ['titre','genre','duree','date_debut','date_fin','synopsis','responsable','contact','budget','statut'].forEach(k=>{const el=document.getElementById('proj_'+k);if(el)el.value=p[k]||'';});
+  ['equipe-list','intervenants-list','materiel-list','lieux-list'].forEach(id=>document.getElementById(id).innerHTML='');
+  document.getElementById('scenes-list').innerHTML='';
+  document.getElementById('planning-tbody').innerHTML='';
+  sceneCounter=0;
+  (state.equipe||[]).forEach(d=>addEquipe(d));
+  (state.intervenants||[]).forEach(d=>addIntervenant(d));
+  (state.materiel||[]).forEach(d=>addMateriel(d));
+  (state.lieux||[]).forEach(d=>addLieu(d));
+  (state.scenes||[]).forEach(d=>addScene(d));
+  (state.planning||[]).forEach(d=>addPlanning(d));
+  document.getElementById('notes_generales').value=state.notes||'';
+}
+function saveJSON(){
+  collectState();
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=(state.projet?.titre||'fiche-technique').replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.json';
+  a.click();toast('Fichier JSON sauvegardé ✓');
+}
+function loadJSON(){document.getElementById('file-input').click();}
+function onFileLoad(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{try{state=JSON.parse(ev.target.result);restoreState();toast('Fiche chargée ✓');}catch(err){toast('Erreur : JSON invalide');}};
+  reader.readAsText(file);e.target.value='';
+}
+function shareLink(){
+  collectState();
+  try{const encoded=btoa(encodeURIComponent(JSON.stringify(state)));const url=location.href.split('#')[0]+'#'+encoded;navigator.clipboard.writeText(url).then(()=>toast('Lien copié ✓'));}
+  catch(e){toast('Erreur de génération du lien');}
+}
+function init(){
+  const hash=location.hash.slice(1);
+  if(hash){try{state=JSON.parse(decodeURIComponent(atob(hash)));restoreState();toast('Fiche chargée depuis le lien ✓');return;}catch(e){}}
+  addEquipe();addEquipe();addEquipe();
+  addIntervenant();
+  addMateriel();addMateriel();
+  addLieu();
+  addScene();
+  addPlanning();
+  updateMeta();
+}
+init();
+</script>
+</body>
+</html>
