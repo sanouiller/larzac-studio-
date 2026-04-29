@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blablarzac — script &amp; dialogue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
+    body { overflow: hidden; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #16161e; }
+    ::-webkit-scrollbar-thumb { background: #2a2a38; border-radius: 3px; }
+    select option { background: #1e1e28; color: #f0ede8; }
+    .ldrag:hover .dh { opacity: 1 !important; }
+
+    /* ── IMPRESSION DIRECTE ── */
+    #print-area { display: none; }
+    @media print {
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body > #root { display: none !important; }
+      #print-area {
+        display: block !important;
+        font-family: 'Courier Prime', Courier, monospace;
+        max-width: 680px; margin: 0 auto;
+        padding: 20px 40px; color: #111;
+        font-size: 12pt; line-height: 1.8;
+      }
+      #print-area h1 { text-align:center; text-transform:uppercase; letter-spacing:5px; font-size:15pt; border-bottom:3px solid #111; padding-bottom:8px; margin-bottom:6px; }
+      #print-area .psc  { text-align:center; font-size:11pt; color:#444; margin-bottom:20px; letter-spacing:2px; text-transform:uppercase; }
+      #print-area .psep { border-top:3px solid #111; margin:30px 0; page-break-before:auto; }
+      #print-area .pmeta{ font-size:10pt; border-top:1px solid #ccc; padding:8px 0; margin-bottom:16px; }
+      #print-area .pnote{ font-style:italic; font-size:10pt; border-left:3px solid #111; padding-left:12px; margin-bottom:24px; color:#333; }
+      #print-area .pblk { margin-bottom:22px; }
+      #print-area .pnam { text-align:center; text-transform:uppercase; font-weight:700; letter-spacing:3px; font-size:11pt; margin-bottom:2px; display:flex; justify-content:center; align-items:baseline; gap:12px; }
+      #print-area .pnum { font-size:9pt; color:#bbb; font-weight:400; letter-spacing:0; }
+      #print-area .pton { text-align:center; font-style:italic; font-size:10pt; color:#555; margin-bottom:2px; }
+      #print-area .psta { text-align:center; font-style:italic; color:#555; margin-bottom:4px; font-size:10pt; }
+      #print-area .prep { text-align:center; padding:0 120px; }
+      #print-area .psil { text-align:center; color:#888; font-style:italic; border-top:1px dashed #ccc; border-bottom:1px dashed #ccc; padding:8px; margin:16px 100px; letter-spacing:3px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <div id="print-area"></div>
+
+  <script type="module">
+    import { createElement, useState, useRef, useEffect } from 'https://esm.sh/react@18.2.0';
+    import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
+    import htm from 'https://esm.sh/htm@3.1.1';
+    const html = htm.bind(createElement);
+
+    /* ══ CONSTANTES ══ */
+    const TONES = ["neutre","joyeux","triste","en colère","sarcastique","murmure","cri","hésitant","autoritaire","tendre","ironique","peureux","mystérieux","urgent","pressé","froid","chaleureux"];
+    const COLORS = ["#f0a500","#e05f2c","#4ecdc4","#a78bfa","#f472b6","#34d399","#60a5fa","#fb923c","#a3e635","#f87171"];
+    const SHORTCUTS = [
+      ["Alt + R","Nouvelle réplique"],["Alt + S","Silence"],["Alt + D","Didascalie"],
+      ["Ctrl + Z","Annuler (undo)"],["Tab","Aller à la ligne suivante"],
+    ];
+    const D="#0d0d12",S="#16161e",S2="#1e1e28",BR="#2a2a38",AC="#f0a500",TX="#f0ede8",MT="#8888aa",PU="#a78bfa";
+
+    /* ══ HELPERS D'ÉTAT ══ */
+    const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+    const mkScene = (n) => ({ id:uid(), number:String(n), name:"Scène "+n, props:"", notes:"", lines:[] });
+
+    const encode = (s) => { try { return btoa(unescape(encodeURIComponent(JSON.stringify(s)))); } catch { return null; } };
+    const decode = (s) => { try { return JSON.parse(decodeURIComponent(escape(atob(s)))); } catch { return null; } };
+
+    /* Migration ancien format (v1 : lines au top-level) */
+    const migrate = (s) => {
+      if (!s) return null;
+      if (s.lines && !s.scenes) {
+        const sc = { id:uid(), number:s.film?.sceneNumber||"1", name:s.film?.sceneName||"Scène 1",
+                     props:s.film?.props||"", notes:s.film?.notes||"", lines:s.lines||[] };
+        return { film:{ title:s.film?.title||"Sans titre" }, characters:s.characters||[], scenes:[sc], currentSceneId:sc.id };
+      }
+      if (!s.scenes?.length) return null;
+      const cur = s.scenes.find(sc=>sc.id===s.currentSceneId) ? s : { ...s, currentSceneId:s.scenes[0].id };
+      return cur;
+    };
+
+    const makeDefault = () => { const sc=mkScene(1); return { film:{title:"Sans titre"}, characters:[], scenes:[sc], currentSceneId:sc.id }; };
+
+    const loadInit = () => {
+      const hash = window.location.hash.slice(1);
+      if (hash) { const d=migrate(decode(hash)); if (d) return d; }
+      try {
+        const v2 = localStorage.getItem('bbz_v2'); if (v2) { const d=migrate(JSON.parse(v2)); if (d) return d; }
+        const v1 = localStorage.getItem('blablarzac'); if (v1) { const d=migrate(JSON.parse(v1)); if (d) return d; }
+      } catch {}
+      return makeDefault();
+    };
+
+    /* ══ COMPOSANT PRINCIPAL ══ */
+    function App() {
+      const [st, _setSt] = useState(loadInit);
+      const [panel,  setPanel]  = useState("scenes");
+      const [dragIdx, setDragIdx] = useState(null);
+      const [dragOver,setDragOver]= useState(null);
+      const [showSC,  setShowSC]  = useState(false);
+      const [toast,   setToast]   = useState(null);
+      const [fs,      setFs]      = useState(() => parseInt(localStorage.getItem('bbz_fs') || '14'));
+      const fileRef = useRef();
+      const hist    = useRef([st]);
+      const cmds    = useRef({});   // pointeur vers les commandes courantes
+
+      /* setSt avec historique */
+      const setSt = (upd) => _setSt(prev => {
+        const next = typeof upd === 'function' ? upd(prev) : upd;
+        hist.current = [...hist.current.slice(-79), next];
+        return next;
+      });
+
+      /* Undo — utilise seulement le ref, stable */
+      const undo = () => {
+        if (hist.current.length < 2) return;
+        hist.current = hist.current.slice(0, -1);
+        _setSt(hist.current[hist.current.length - 1]);
+      };
+
+      /* Persist font size */
+      useEffect(() => { localStorage.setItem('bbz_fs', String(fs)); }, [fs]);
+
+      /* Auto-save localStorage */
+      useEffect(() => {
+        const t = setTimeout(() => { try { localStorage.setItem('bbz_v2', JSON.stringify(st)); } catch {} }, 700);
+        return () => clearTimeout(t);
+      }, [st]);
+
+      /* Raccourcis clavier — enregistré une fois, lit cmds.current */
+      useEffect(() => {
+        const h = (e) => {
+          if (e.ctrlKey && e.key === 'z') { e.preventDefault(); cmds.current.undo?.(); }
+          if (e.altKey  && e.key === 'r') { e.preventDefault(); cmds.current.addLine?.('dialogue'); }
+          if (e.altKey  && e.key === 's') { e.preventDefault(); cmds.current.addLine?.('silence'); }
+          if (e.altKey  && e.key === 'd') { e.preventDefault(); cmds.current.addLine?.('stage_direction'); }
+        };
+        window.addEventListener('keydown', h);
+        return () => window.removeEventListener('keydown', h);
+      }, []);
+
+      /* Toast */
+      const toast_ = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 2500); };
+
+      /* ── Dérivés ── */
+      const { film, characters, scenes } = st;
+      const sc = scenes.find(s=>s.id===st.currentSceneId) || scenes[0];  // scène courante
+      const lines = sc.lines;
+
+      /* ── Film ── */
+      const upFilm = (k,v) => setSt(s=>({...s, film:{...s.film,[k]:v}}));
+
+      /* ── Scènes ── */
+      const addScene = () => { const n=mkScene(scenes.length+1); setSt(s=>({...s, scenes:[...s.scenes,n], currentSceneId:n.id})); };
+      const rmScene  = (id) => {
+        if (scenes.length<=1) return;
+        setSt(s=>{ const ns=s.scenes.filter(x=>x.id!==id); return {...s, scenes:ns, currentSceneId:s.currentSceneId===id?ns[0].id:s.currentSceneId}; });
+      };
+      const upSc = (k,v) => setSt(s=>({...s, scenes:s.scenes.map(x=>x.id===s.currentSceneId?{...x,[k]:v}:x)}));
+      const switchSc = (id) => setSt(s=>({...s, currentSceneId:id}));
+
+      /* ── Personnages ── */
+      const addChar = () => { const id=uid(), color=COLORS[characters.length%COLORS.length]; setSt(s=>({...s, characters:[...s.characters,{id, name:"Perso "+(s.characters.length+1), color, defaultTone:"neutre"}]})); };
+      const upChar  = (id,k,v) => setSt(s=>({...s, characters:s.characters.map(c=>c.id===id?{...c,[k]:v}:c)}));
+      const rmChar  = (id) => setSt(s=>({...s, characters:s.characters.filter(c=>c.id!==id), scenes:s.scenes.map(sc=>({...sc, lines:sc.lines.map(l=>l.characterId===id?{...l,characterId:""}:l)}))}));
+
+      /* ── Lignes ── */
+      const addLine = (type) => {
+        const id=uid();
+        setSt(s=>({...s, scenes:s.scenes.map(x=>x.id===s.currentSceneId?{...x, lines:[...x.lines,{id, type, characterId:s.characters[0]?.id||"", text:"", tone:"neutre", stageDirection:""}]}:x)}));
+      };
+      const upLine = (id,k,v) => setSt(s=>({...s, scenes:s.scenes.map(x=>x.id===s.currentSceneId?{...x, lines:x.lines.map(l=>l.id===id?{...l,[k]:v}:l)}:x)}));
+      const rmLine = (id) => setSt(s=>({...s, scenes:s.scenes.map(x=>x.id===s.currentSceneId?{...x, lines:x.lines.filter(l=>l.id!==id)}:x)}));
+
+      /* ── Drag & drop ── */
+      const dStart = (i) => setDragIdx(i);
+      const dOver  = (e,i) => { e.preventDefault(); setDragOver(i); };
+      const dDrop  = (i) => {
+        if (dragIdx===null||dragIdx===i){setDragIdx(null);setDragOver(null);return;}
+        const nl=[...lines]; const [m]=nl.splice(dragIdx,1); nl.splice(i,0,m);
+        upSc('lines',nl); setDragIdx(null); setDragOver(null);
+      };
+      const dEnd = () => {setDragIdx(null);setDragOver(null);};
+
+      /* ── Tab → ligne suivante ── */
+      const tabNext = (e, lineId) => {
+        if (e.key!=='Tab') return;
+        e.preventDefault();
+        const idx = lines.findIndex(l=>l.id===lineId);
+        for (let i=idx+1; i<lines.length; i++) {
+          const el = document.querySelector(`[data-lid="${lines[i].id}"] textarea, [data-lid="${lines[i].id}"] input[type=text], [data-lid="${lines[i].id}"] input:not([type])`);
+          if (el){ el.focus(); break; }
+        }
+      };
+
+      /* ── Numéro de réplique dans la scène ── */
+      const repNum = (lineId) => {
+        let n=0;
+        for (const l of lines) { if (l.type==="dialogue") n++; if (l.id===lineId) return n; }
+        return 0;
+      };
+
+      /* ── Durée estimée ── */
+      const dur = () => {
+        const w=lines.filter(l=>l.type==="dialogue").reduce((a,l)=>a+(l.text?.split(/\s+/).filter(Boolean).length||0),0);
+        const sl=lines.filter(l=>l.type==="silence").length;
+        const s=Math.round(w*0.4+sl*2);
+        return s<60?`${s}s`:`${Math.floor(s/60)}min ${s%60}s`;
+      };
+
+      /* ── Import / Export JSON ── */
+      const exportJSON = () => {
+        const a=document.createElement("a");
+        a.href=URL.createObjectURL(new Blob([JSON.stringify(st,null,2)],{type:"application/json"}));
+        a.download=`${film.title.replace(/\s+/g,"_")}.json`; a.click();
+      };
+      const importJSON = (e) => {
+        const f=e.target.files[0]; if(!f) return;
+        const r=new FileReader();
+        r.onload=ev=>{ try{ const d=migrate(JSON.parse(ev.target.result)); if(d) setSt(d); else alert("Format invalide"); } catch{ alert("JSON invalide"); } };
+        r.readAsText(f); e.target.value="";
+      };
+
+      /* ── Partage URL ── */
+      const share = () => {
+        const enc=encode(st); if(!enc){toast_("Erreur encodage");return;}
+        const url=window.location.href.split('#')[0]+'#'+enc;
+        navigator.clipboard.writeText(url).then(()=>toast_("🔗 Lien copié !")).catch(()=>toast_("Erreur clipboard"));
+      };
+
+      /* ── Impression directe ── */
+      const print_ = () => {
+        const cmap=Object.fromEntries(characters.map(c=>[c.id,c]));
+        let html_="<h1>"+film.title+"</h1>";
+        scenes.forEach((scene,si)=>{
+          if(si>0) html_+='<div class="psep"></div>';
+          html_+=`<div class="psc">Scène ${scene.number} — ${scene.name}</div>`;
+          if(scene.props) html_+=`<div class="pmeta"><strong>ACCESSOIRES :</strong> ${scene.props}</div>`;
+          if(scene.notes) html_+=`<div class="pnote"><strong>Notes :</strong><br>${scene.notes.replace(/\n/g,"<br>")}</div>`;
+          let n=0;
+          scene.lines.forEach(l=>{
+            if(l.type==="silence"){
+              html_+='<p class="psil">— SILENCE —</p>';
+            } else if(l.type==="stage_direction"){
+              html_+=`<p class="psta">(${l.text||"…"})</p>`;
+            } else {
+              n++;
+              const c=cmap[l.characterId];
+              html_+=`<div class="pblk">
+                <p class="pnam">${c?.name||"?"}<span class="pnum">${n}</span></p>
+                ${l.tone&&l.tone!=="neutre"?`<p class="pton">(${l.tone})</p>`:""}
+                ${l.stageDirection?`<p class="psta">(${l.stageDirection})</p>`:""}
+                <p class="prep">${(l.text||"…").replace(/\n/g,"<br>")}</p>
+              </div>`;
+            }
+          });
+        });
+        document.getElementById('print-area').innerHTML=html_;
+        window.print();
+      };
+
+      /* ── Helpers UI ── */
+      const getChar = id => characters.find(c=>c.id===id);
+      const charSide = id => { const i=characters.findIndex(c=>c.id===id); return i===-1?"left":i%2===0?"left":"right"; };
+      const repCount = id => lines.filter(l=>l.type==="dialogue"&&l.characterId===id).length;
+      const inp = (x={}) => ({outline:"none", fontFamily:"inherit", ...x});
+
+      /* Mettre à jour cmds.current à chaque render */
+      cmds.current = { undo, addLine };
+
+      /* ── Rendus de ligne ── */
+      const rSilence = (l) => html`
+        <div style=${{display:"flex",alignItems:"center",gap:10,padding:"10px 0"}}>
+          <div style=${{flex:1,borderTop:"1px dashed "+BR}}/>
+          <span style=${{color:MT,fontSize:10,letterSpacing:4,fontWeight:700,flexShrink:0}}>⏸ SILENCE</span>
+          <div style=${{flex:1,borderTop:"1px dashed "+BR}}/>
+          <button onClick=${()=>rmLine(l.id)} style=${{background:"transparent",border:"none",color:BR,cursor:"pointer",fontSize:13,padding:"0 4px"}}>✕</button>
+        </div>`;
+
+      const rStage = (l) => html`
+        <div style=${{display:"flex",alignItems:"center",gap:6,padding:"4px 8px",background:PU+"12",borderRadius:6,border:"1px dashed "+PU+"44"}}>
+          <span style=${{color:PU,fontSize:13,flexShrink:0}}>(</span>
+          <input style=${inp({flex:1,background:"transparent",border:"none",color:PU,fontStyle:"italic",fontSize:13})}
+            value=${l.text} onInput=${e=>upLine(l.id,"text",e.target.value)}
+            onKeyDown=${e=>tabNext(e,l.id)}
+            placeholder="Didascalie générale — ambiance, action, décor…"/>
+          <span style=${{color:PU,fontSize:13,flexShrink:0}}>)</span>
+          <button onClick=${()=>rmLine(l.id)} style=${{background:"transparent",border:"none",color:BR,cursor:"pointer",fontSize:13}}>✕</button>
+        </div>`;
+
+      const rDialogue = (l) => {
+        const char=getChar(l.characterId);
+        const right=charSide(l.characterId)==="right";
+        const bc=char?.color||BR;
+        const n=repNum(l.id);
+        return html`
+          <div style=${{display:"flex",gap:10,alignItems:"flex-start",flexDirection:right?"row-reverse":"row"}}>
+            <div style=${{width:34,height:34,borderRadius:"50%",background:bc,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:14,flexShrink:0,marginTop:26,color:"rgba(0,0,0,0.75)",boxShadow:"0 0 10px "+bc+"44"}}>
+              ${(char?.name||"?")[0].toUpperCase()}
+            </div>
+            <div style=${{flex:1,minWidth:0}}>
+              <div style=${{display:"flex",alignItems:"center",gap:5,marginBottom:4,flexDirection:right?"row-reverse":"row"}}>
+                <span style=${{color:BR,fontSize:10,fontWeight:700,flexShrink:0,minWidth:16,textAlign:"center",fontVariantNumeric:"tabular-nums"}}>${n}</span>
+                <select value=${l.characterId} onChange=${e=>upLine(l.id,"characterId",e.target.value)}
+                  style=${{background:S2,border:"2px solid "+bc,color:TX,borderRadius:5,padding:"2px 6px",fontSize:11,fontFamily:"inherit",fontWeight:700}}>
+                  <option value="">— Personnage —</option>
+                  ${characters.map(c=>html`<option key=${c.id} value=${c.id}>${c.name}</option>`)}
+                </select>
+                <select value=${l.tone} onChange=${e=>upLine(l.id,"tone",e.target.value)}
+                  style=${{background:S2,border:"1px solid "+BR,color:MT,borderRadius:5,padding:"2px 6px",fontSize:10,fontFamily:"inherit",fontStyle:"italic"}}>
+                  ${TONES.map(t=>html`<option key=${t} value=${t}>${t}</option>`)}
+                </select>
+                <button onClick=${()=>rmLine(l.id)} style=${{background:"transparent",border:"none",color:BR,cursor:"pointer",fontSize:12,marginLeft:right?"auto":0,marginRight:right?0:"auto"}}>✕</button>
+              </div>
+              <textarea value=${l.text} onInput=${e=>upLine(l.id,"text",e.target.value)}
+                onKeyDown=${e=>tabNext(e,l.id)} placeholder="Réplique…" rows=${2}
+                style=${{outline:"none",fontFamily:"'Courier Prime',monospace",width:"100%",background:S2,
+                  border:"1px solid "+BR,
+                  borderLeft:right?"1px solid "+BR:"3px solid "+bc,
+                  borderRight:right?"3px solid "+bc:"1px solid "+BR,
+                  color:TX,borderRadius:8,padding:"7px 12px",fontSize:fs,resize:"none",lineHeight:1.6}}></textarea>
+              <input style=${inp({width:"100%",background:"transparent",border:"none",borderBottom:"1px dashed "+BR,color:PU,fontStyle:"italic",fontSize:Math.max(10,fs-3),padding:"3px 0",marginTop:3})}
+                value=${l.stageDirection} onInput=${e=>upLine(l.id,"stageDirection",e.target.value)}
+                onKeyDown=${e=>tabNext(e,l.id)}
+                placeholder="( didascalie de réplique optionnelle… )"/>
+            </div>
+          </div>`;
+      };
+
+      /* ══ RENDU PRINCIPAL ══ */
+      return html`
+        <div style=${{background:D,color:TX,height:"100vh",fontFamily:"'Syne',sans-serif",display:"flex",flexDirection:"column",overflow:"hidden",position:"relative"}}>
+
+          ${toast && html`
+            <div style=${{position:"fixed",top:14,left:"50%",transform:"translateX(-50%)",background:AC,color:"#000",padding:"7px 20px",borderRadius:20,fontWeight:700,fontSize:13,zIndex:9999,boxShadow:"0 4px 20px rgba(0,0,0,0.5)",whiteSpace:"nowrap"}}>
+              ${toast}
+            </div>`}
+
+          ${showSC && html`
+            <div onClick=${()=>setShowSC(false)} style=${{position:"fixed",inset:0,zIndex:998}}/>
+            <div style=${{position:"fixed",bottom:58,right:14,background:S,border:"1px solid "+BR,borderRadius:10,padding:16,zIndex:999,minWidth:250,boxShadow:"0 8px 32px rgba(0,0,0,0.6)"}}>
+              <div style=${{color:AC,fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:2,marginBottom:12}}>⌨ Raccourcis clavier</div>
+              ${SHORTCUTS.map(([k,d])=>html`
+                <div key=${k} style=${{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,marginBottom:7}}>
+                  <code style=${{background:S2,border:"1px solid "+BR,borderRadius:4,padding:"2px 8px",fontSize:11,color:TX,fontFamily:"monospace",flexShrink:0}}>${k}</code>
+                  <span style=${{color:MT,fontSize:12}}>${d}</span>
+                </div>`)}
+              <div style=${{borderTop:"1px solid "+BR,marginTop:10,paddingTop:8,color:BR,fontSize:9,textTransform:"uppercase",letterSpacing:1}}>💾 Sauvegarde auto activée</div>
+            </div>`}
+
+          <!-- HEADER -->
+          <header style=${{background:S,borderBottom:"1px solid "+BR,padding:"8px 16px",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+            <div style=${{fontSize:21,fontWeight:900,letterSpacing:-1,flexShrink:0,lineHeight:1,userSelect:"none"}}>
+              <span style=${{color:TX}}>blabla</span><span style=${{color:AC}}>rzac</span>
+              <div style=${{fontSize:8,color:MT,letterSpacing:2,fontWeight:400,textTransform:"uppercase",marginTop:1}}>script & dialogue</div>
+            </div>
+
+            <div style=${{flex:1,minWidth:160}}>
+              <input style=${inp({background:"transparent",border:"none",color:TX,fontSize:16,fontWeight:800,width:"100%",lineHeight:1.2})}
+                value=${film.title} onInput=${e=>upFilm("title",e.target.value)} placeholder="Titre du film"/>
+              <div style=${{display:"flex",alignItems:"center",gap:6,marginTop:2}}>
+                <span style=${{color:AC,fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:1.5,flexShrink:0}}>Sc.</span>
+                <input style=${inp({background:S2,border:"1px solid "+BR,color:TX,width:32,padding:"1px 4px",borderRadius:4,fontSize:11,textAlign:"center"})}
+                  value=${sc.number} onInput=${e=>upSc("number",e.target.value)}/>
+                <span style=${{color:MT,flexShrink:0}}>—</span>
+                <input style=${inp({background:"transparent",border:"none",borderBottom:"1px solid "+BR,color:TX,padding:"1px 4px",fontSize:11,flex:1,minWidth:0})}
+                  value=${sc.name} onInput=${e=>upSc("name",e.target.value)} placeholder="Nom de la scène"/>
+                <span style=${{color:AC,fontSize:10,fontWeight:700,background:AC+"18",border:"1px solid "+AC+"44",padding:"2px 8px",borderRadius:20,flexShrink:0,whiteSpace:"nowrap"}}>⏱ ${dur()}</span>
+              </div>
+            </div>
+
+            <div style=${{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+              <button onClick=${share} style=${{background:"transparent",border:"1px solid "+BR,color:TX,padding:"4px 9px",borderRadius:5,cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>🔗 Partager</button>
+              <button onClick=${()=>fileRef.current.click()} style=${{background:"transparent",border:"1px solid "+BR,color:MT,padding:"4px 9px",borderRadius:5,cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>↑ Import</button>
+              <input ref=${fileRef} type="file" accept=".json" style=${{display:"none"}} onChange=${importJSON}/>
+              <button onClick=${exportJSON} style=${{background:"transparent",border:"1px solid "+BR,color:TX,padding:"4px 9px",borderRadius:5,cursor:"pointer",fontSize:11,fontFamily:"inherit"}}>↓ JSON</button>
+              <button onClick=${print_} style=${{background:AC,border:"none",color:"#000",padding:"4px 12px",borderRadius:5,cursor:"pointer",fontSize:11,fontWeight:700,fontFamily:"inherit"}}>🖨 Imprimer</button>
+            </div>
+          </header>
+
+          <div style=${{display:"flex",flex:1,overflow:"hidden"}}>
+
+            <!-- SIDEBAR -->
+            <aside style=${{width:218,background:S,borderRight:"1px solid "+BR,display:"flex",flexDirection:"column",flexShrink:0}}>
+              <div style=${{display:"flex",borderBottom:"1px solid "+BR}}>
+                ${[["scenes","🎬 Scènes"],["info","📋 Infos"],["chars","🎭 Persos"]].map(([p,label])=>html`
+                  <button key=${p} onClick=${()=>setPanel(p)} style=${{flex:1,padding:"7px 2px",background:"transparent",border:"none",color:panel===p?AC:MT,borderBottom:panel===p?"2px solid "+AC:"2px solid transparent",cursor:"pointer",fontSize:10,fontFamily:"inherit",fontWeight:panel===p?700:400}}>${label}</button>`)}
+              </div>
+
+              <div style=${{flex:1,overflowY:"auto",padding:10}}>
+
+                ${panel==="scenes" && html`<div>
+                  ${scenes.map(x=>html`
+                    <div key=${x.id} onClick=${()=>switchSc(x.id)}
+                      style=${{background:x.id===st.currentSceneId?AC+"1e":S2,borderRadius:7,padding:"8px 10px",marginBottom:7,cursor:"pointer",border:x.id===st.currentSceneId?"1px solid "+AC+"55":"1px solid "+BR,transition:"background 0.15s"}}>
+                      <div style=${{display:"flex",alignItems:"center",justifyContent:"space-between",gap:4}}>
+                        <span style=${{fontWeight:700,fontSize:12,color:x.id===st.currentSceneId?AC:TX,flexShrink:0}}>Sc. ${x.number}</span>
+                        <span style=${{color:MT,fontSize:11,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,marginLeft:6}}>${x.name}</span>
+                        ${scenes.length>1 && html`<button onClick=${e=>{e.stopPropagation();rmScene(x.id);}} style=${{background:"transparent",border:"none",color:BR,cursor:"pointer",fontSize:12,flexShrink:0,padding:"0 2px"}}>✕</button>`}
+                      </div>
+                      <div style=${{fontSize:9,color:BR,marginTop:3}}>${x.lines.filter(l=>l.type==="dialogue").length} réplique(s)</div>
+                    </div>`)}
+                  <button onClick=${addScene} style=${{width:"100%",background:"transparent",border:"1px dashed "+BR,color:AC,padding:"7px",borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:"inherit",marginTop:2}}>
+                    + Nouvelle scène
+                  </button>
+                </div>`}
+
+                ${panel==="info" && html`<div>
+                  <div style=${{color:MT,fontSize:9,textTransform:"uppercase",letterSpacing:1.5,marginBottom:4}}>Accessoires</div>
+                  <textarea style=${inp({width:"100%",background:S2,border:"1px solid "+BR,color:TX,borderRadius:6,padding:"6px 8px",fontSize:11,resize:"none"})}
+                    value=${sc.props} onInput=${e=>upSc("props",e.target.value)} placeholder="Couteau, téléphone, valise…" rows=${3}></textarea>
+                  <div style=${{color:MT,fontSize:9,textTransform:"uppercase",letterSpacing:1.5,marginBottom:4,marginTop:12}}>Notes de mise en scène</div>
+                  <textarea style=${inp({width:"100%",background:S2,border:"1px solid "+BR,color:TX,borderRadius:6,padding:"6px 8px",fontSize:11,resize:"none"})}
+                    value=${sc.notes} onInput=${e=>upSc("notes",e.target.value)} placeholder="Lumière, ambiance, déplacements, intentions…" rows=${9}></textarea>
+                  <div style=${{color:MT,fontSize:9,marginTop:10,lineHeight:1.6}}>
+                    ${lines.filter(l=>l.type==="dialogue").length} répliques · ${lines.filter(l=>l.type==="silence").length} silence(s)
+                  </div>
+                </div>`}
+
+                ${panel==="chars" && html`<div>
+                  ${characters.map(c=>html`
+                    <div key=${c.id} style=${{background:S2,borderRadius:8,padding:10,marginBottom:9,border:"1px solid "+BR,borderLeft:"3px solid "+c.color}}>
+                      <div style=${{display:"flex",alignItems:"center",gap:7,marginBottom:7}}>
+                        <div style=${{width:11,height:11,borderRadius:"50%",background:c.color,flexShrink:0}}/>
+                        <input style=${inp({flex:1,background:"transparent",border:"none",color:TX,fontWeight:700,fontSize:13})}
+                          value=${c.name} onInput=${e=>upChar(c.id,"name",e.target.value)}/>
+                        <button onClick=${()=>rmChar(c.id)} style=${{background:"transparent",border:"none",color:MT,cursor:"pointer",fontSize:13}}>✕</button>
+                      </div>
+                      <div style=${{display:"flex",gap:6,alignItems:"center",marginBottom:5}}>
+                        <input type="color" value=${c.color} onChange=${e=>upChar(c.id,"color",e.target.value)}
+                          style=${{width:24,height:19,border:"1px solid "+BR,borderRadius:3,background:"transparent",cursor:"pointer",padding:1}}/>
+                        <select value=${c.defaultTone} onChange=${e=>upChar(c.id,"defaultTone",e.target.value)}
+                          style=${{flex:1,background:S,border:"1px solid "+BR,color:TX,borderRadius:4,padding:"3px",fontSize:10,fontFamily:"inherit"}}>
+                          ${TONES.map(t=>html`<option key=${t} value=${t}>${t}</option>`)}
+                        </select>
+                      </div>
+                      <div style=${{color:MT,fontSize:9}}>${repCount(c.id)} réplique(s) · ${characters.findIndex(x=>x.id===c.id)%2===0?"gauche":"droite"}</div>
+                    </div>`)}
+                  <button onClick=${addChar} style=${{width:"100%",background:"transparent",border:"1px dashed "+BR,color:AC,padding:"7px",borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>
+                    + Ajouter un personnage
+                  </button>
+                </div>`}
+
+              </div>
+            </aside>
+
+            <!-- MAIN DIALOGUE -->
+            <main style=${{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+              <div style=${{flex:1,overflowY:"auto",padding:"14px 18px"}}>
+
+                ${lines.length===0 && html`
+                  <div style=${{textAlign:"center",padding:"60px 20px",opacity:0.28}}>
+                    <div style=${{fontSize:50,marginBottom:12}}>🎬</div>
+                    <div style=${{fontSize:14,color:MT}}>Commence ton dialogue ci-dessous</div>
+                    <div style=${{fontSize:11,color:MT,marginTop:5}}>Crée d'abord tes personnages dans l'onglet Persos</div>
+                  </div>`}
+
+                ${lines.map((l,i)=>html`
+                  <div key=${l.id} className="ldrag" data-lid=${l.id}
+                    draggable=${true}
+                    onDragStart=${()=>dStart(i)} onDragOver=${e=>dOver(e,i)} onDrop=${()=>dDrop(i)} onDragEnd=${dEnd}
+                    style=${{position:"relative",marginBottom:7,cursor:"grab",opacity:dragIdx===i?0.2:1,transition:"opacity 0.1s"}}>
+                    ${dragOver===i&&dragIdx!==i && html`<div style=${{height:3,background:AC,borderRadius:2,marginBottom:5,boxShadow:"0 0 8px "+AC}}/>`}
+                    <div className="dh" style=${{position:"absolute",left:-14,top:"50%",transform:"translateY(-50%)",color:BR,fontSize:13,opacity:0,transition:"opacity 0.2s",userSelect:"none",pointerEvents:"none"}}>⠿</div>
+                    ${l.type==="silence"        && rSilence(l)}
+                    ${l.type==="stage_direction"&& rStage(l)}
+                    ${l.type==="dialogue"       && rDialogue(l)}
+                  </div>`)}
+              </div>
+
+              <!-- BARRE OUTILS -->
+              <div style=${{background:S,borderTop:"1px solid "+BR,padding:"9px 14px",display:"flex",gap:7,alignItems:"center",flexWrap:"wrap"}}>
+                <button onClick=${()=>addLine("dialogue")} style=${{background:AC,border:"none",color:"#000",padding:"7px 15px",borderRadius:6,cursor:"pointer",fontWeight:700,fontSize:12,fontFamily:"inherit"}}>+ Réplique</button>
+                <button onClick=${()=>addLine("silence")} style=${{background:"transparent",border:"1px solid "+BR,color:MT,padding:"7px 13px",borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>⏸ Silence</button>
+                <button onClick=${()=>addLine("stage_direction")} style=${{background:"transparent",border:"1px solid "+PU+"55",color:PU,padding:"7px 13px",borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>( ) Didascalie</button>
+                <button onClick=${undo} title="Annuler (Ctrl+Z)" style=${{background:"transparent",border:"1px solid "+BR,color:MT,padding:"7px 10px",borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:"inherit"}}>↩</button>
+                <div style=${{marginLeft:"auto",display:"flex",alignItems:"center",gap:8}}>
+                  <div style=${{display:"flex",alignItems:"center",gap:4,background:S2,border:"1px solid "+BR,borderRadius:6,padding:"2px 4px"}}>
+                    <button onClick=${()=>setFs(v=>Math.max(10,v-1))} title="Réduire la police"
+                      style=${{background:"transparent",border:"none",color:MT,cursor:"pointer",fontSize:14,lineHeight:1,padding:"0 3px",fontFamily:"inherit"}}>−</button>
+                    <span style=${{color:TX,fontSize:11,minWidth:26,textAlign:"center",fontVariantNumeric:"tabular-nums"}}>${fs}px</span>
+                    <button onClick=${()=>setFs(v=>Math.min(28,v+1))} title="Agrandir la police"
+                      style=${{background:"transparent",border:"none",color:MT,cursor:"pointer",fontSize:14,lineHeight:1,padding:"0 3px",fontFamily:"inherit"}}>+</button>
+                  </div>
+                  <span style=${{color:BR,fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>💾 auto</span>
+                  <button onClick=${()=>setShowSC(v=>!v)} title="Raccourcis clavier"
+                    style=${{background:showSC?AC+"33":S2,border:"1px solid "+(showSC?AC:BR),color:showSC?AC:MT,width:26,height:26,borderRadius:"50%",cursor:"pointer",fontSize:12,fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s"}}>?</button>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>`;
+    }
+
+    createRoot(document.getElementById("root")).render(html`<${App}/>`);
+  </script>
+</body>
+</html>
