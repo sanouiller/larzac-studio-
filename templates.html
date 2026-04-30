@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Templates — Larzac Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Cinzel:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Orbitron:wght@400;700&family=Special+Elite&family=UnifrakturMaguntia&family=Pacifico&family=Permanent+Marker&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06070a;--s1:#0d0f14;--s2:#141720;
+  --b1:rgba(255,255,255,.05);--b2:rgba(255,255,255,.10);
+  --amber:#f0a500;--a2:rgba(240,165,0,.12);
+  --cream:#ece7dc;--muted:#58627a;--dim:#24283a;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--cream);font-family:'DM Sans',sans-serif}
+
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px);pointer-events:none;z-index:9999}
+
+/* TOPBAR */
+#topbar{height:44px;background:#000;border-bottom:1px solid var(--b2);display:flex;align-items:center;padding:0 32px;gap:14px;position:sticky;top:0;z-index:100}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.12em;color:var(--cream);text-decoration:none}
+.logo em{color:var(--amber);font-style:normal}
+.back{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);text-decoration:none;border:1px solid var(--b2);padding:5px 12px;transition:all .15s}
+.back:hover{border-color:var(--amber);color:var(--amber)}
+.tsep{flex:1}
+.tcount{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+
+/* HERO */
+#hero{padding:48px 32px 32px;border-bottom:1px solid var(--b1)}
+.hero-eye{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--amber);opacity:.7;margin-bottom:8px}
+.hero-title{font-family:'Anton',sans-serif;font-size:clamp(48px,8vw,88px);line-height:.9;letter-spacing:-.01em;color:var(--cream);margin-bottom:12px}
+.hero-title em{color:var(--amber);font-style:normal}
+.hero-sub{font-size:13px;color:var(--muted);max-width:520px;line-height:1.6}
+.hero-divider{height:2px;background:linear-gradient(90deg,var(--amber) 0%,rgba(240,165,0,0) 60%);margin-top:24px}
+
+/* FILTERS */
+#filters{padding:18px 32px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--b1);position:sticky;top:44px;background:rgba(6,7,10,.92);backdrop-filter:blur(8px);z-index:99}
+.flt-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.flt{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;background:none;border:1px solid var(--b1);color:var(--muted);padding:5px 12px;cursor:pointer;transition:all .15s}
+.flt:hover{border-color:var(--b2);color:var(--cream)}
+.flt.on{border-color:var(--amber);color:var(--amber);background:var(--a2)}
+
+/* GRID */
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:2px;padding:2px}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--b1);overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s;cursor:pointer}
+.card:hover{border-color:rgba(240,165,0,.3)}
+.card.hidden{display:none}
+
+.card-canvas-wrap{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}
+.card-canvas-wrap canvas{display:block;width:100%;height:100%}
+.card-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.5));opacity:0;transition:opacity .2s}
+.card:hover .card-overlay{opacity:1}
+.card-use{position:absolute;bottom:12px;right:12px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;text-transform:uppercase;background:var(--amber);color:#000;padding:7px 16px;cursor:pointer;border:none;opacity:0;transform:translateY(6px);transition:all .2s;font-weight:700}
+.card:hover .card-use{opacity:1;transform:translateY(0)}
+
+.card-info{padding:12px 14px 14px;flex:1;display:flex;flex-direction:column;gap:6px}
+.card-genre{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.25em;text-transform:uppercase;color:var(--amber);opacity:.7}
+.card-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.06em;color:var(--cream);line-height:1}
+.card-desc{font-size:11px;color:var(--muted);line-height:1.55;flex:1}
+.card-specs{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.spec{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);background:var(--s2);padding:3px 7px;border:1px solid var(--b1)}
+
+/* FOOTER */
+#footer{padding:24px 32px;border-top:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.ft-l{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+.ft-r{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;color:var(--dim)}
+
+@media(max-width:720px){
+  #hero{padding:32px 20px 24px}
+  #filters{padding:12px 20px}
+  #grid{grid-template-columns:1fr;padding:1px}
+  #topbar{padding:0 16px}
+  #footer{padding:16px 20px;flex-direction:column;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a class="logo" href="index.html">LARZAC<em>·</em>STUDIO</a>
+  <div class="tsep"></div>
+  <span class="tcount" id="count-lbl"></span>
+  <a class="back" href="titremaker.html">← TitreMAKER</a>
+</div>
+
+<div id="hero">
+  <div class="hero-eye">Larzac Studio · TitreMAKER v3</div>
+  <div class="hero-title">BIBLIO<em>THÈQUE</em><br>DE TEMPLATES</div>
+  <div class="hero-sub">Chaque template est prêt à l'emploi — police, couleurs, fond, animations et effets préconfigurés par style cinématographique. Cliquer <em style="color:var(--amber)">Utiliser</em> pour ouvrir directement dans TitreMAKER.</div>
+  <div class="hero-divider"></div>
+</div>
+
+<div id="filters">
+  <span class="flt-label">Filtrer :</span>
+  <button class="flt on" data-genre="all" onclick="filter('all',this)">Tous</button>
+  <button class="flt" data-genre="cinéma" onclick="filter('cinéma',this)">Cinéma</button>
+  <button class="flt" data-genre="horreur" onclick="filter('horreur',this)">Horreur</button>
+  <button class="flt" data-genre="action" onclick="filter('action',this)">Action</button>
+  <button class="flt" data-genre="drame" onclick="filter('drame',this)">Drame</button>
+  <button class="flt" data-genre="comédie" onclick="filter('comédie',this)">Comédie</button>
+  <button class="flt" data-genre="scifi" onclick="filter('scifi',this)">Sci-fi</button>
+  <button class="flt" data-genre="doc" onclick="filter('doc',this)">Documentaire</button>
+  <button class="flt" data-genre="autre" onclick="filter('autre',this)">Autre</button>
+</div>
+
+<div id="grid"></div>
+
+<div id="footer">
+  <span class="ft-l">Larzac Studio · TitreMAKER Templates</span>
+  <span class="ft-r" id="ft-r"></span>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// LAYER HELPER (must be before TEMPLATES)
+// ══════════════════════════════════════════════════════════
+let _lid = 10;
+function layer(text, font, weight, size, ls, color, x, y, extra = {}) {
+  return {
+    id: _lid++, name: text.slice(0, 16), text, font, weight, size, ls,
+    lineH: 1.25, color, x, y, align: extra.align || 'center',
+    upper: false, curved: false, curveR: 500, wordWrap: false, wrapW: 80,
+    opacity: 1, blur: 0, visible: true,
+    stroke: extra.stroke || false, strokeColor: extra.strokeColor || '#000000', strokeW: extra.strokeW || 2,
+    shadow: extra.shadow || false, shadowColor: extra.shadowColor || '#000000',
+    shadowBlur: extra.shadowBlur || 10, shadowX: extra.shadowX || 0, shadowY: extra.shadowY || 0,
+  };
+}
+
+// ══════════════════════════════════════════════════════════
+// TEMPLATES
+// ══════════════════════════════════════════════════════════
+const TEMPLATES = [
+
+  // ── CINÉMA ──────────────────────────────────────────────
+  {
+    id:'cinema-auteur', genre:'cinéma', name:'CINÉMA D\'AUTEUR',
+    desc:'Élégance classique. Typographie romaine en or, letterbox 2.39:1, fondu majestueux.',
+    specs:['Cinzel 700','Or #c9a96e','Fondu','Letterbox'],
+    title:'MON FILM', sub:'Un film de',
+    render: c => {
+      bgSolid(c,'#000000');
+      vignette(c);
+      textLine(c,'MON FILM','Cinzel',700,c.w*.068,c.w/2,c.h*.46,'#c9a96e',{shadow:'#b89040',blur:28,ls:c.w*.009});
+      textLine(c,'UN FILM DE','Cinzel',400,c.w*.016,c.w/2,c.h*.6,'#7a6540',{ls:c.w*.005});
+      lineH(c,c.h*.52,.45);
+      lbox(c);
+    },
+    state: {
+      bg:{type:'solid',color:'#000000'},
+      layers:[layer('MON FILM','Cinzel','700',130,18,'#c9a96e',50,48,{shadow:true,shadowColor:'#b89040',shadowBlur:30,shadowX:0,shadowY:0}),layer('UN FILM DE','Cinzel','400',28,14,'#7a6540',50,64)],
+      fx:{vignette:true,lbox:true,lineOp:.45,grain:true,grainAmt:.1},
+      anim:{inType:'fade',outType:'fade',inDur:2200,hold:2000,outDur:1000},
+    }
+  },
+
+  {
+    id:'prestige', genre:'cinéma', name:'PRESTIGE',
+    desc:'Fond dégradé profond, typographie condensée ultra-large, ombre colorée.',
+    specs:['Anton 900','Blanc','Zoom','Gradient'],
+    render: c => {
+      bgGrad(c,'#0a0600','#1a1000','tb');
+      vignette(c);
+      textLine(c,'PRESTIGE','Anton',900,c.w*.09,c.w/2,c.h*.47,'#f5eed8',{shadow:'rgba(240,165,0,.3)',blur:40,ls:c.w*.002});
+      textLine(c,'2024','DM Mono',400,c.w*.014,c.w/2,c.h*.61,'rgba(200,180,130,.5)',{ls:c.w*.008});
+      lbox(c);
+    },
+    state:{
+      bg:{type:'gradient',color:'#0a0600',color2:'#1a1000',gradType:'tb'},
+      layers:[layer('PRESTIGE','Anton','900',160,4,'#f5eed8',50,46,{shadow:true,shadowColor:'rgba(240,165,0,.4)',shadowBlur:50,shadowX:0,shadowY:0}),layer('2024','DM Mono','300',22,20,'rgba(200,180,130,.5)',50,62)],
+      fx:{vignette:true,lbox:true,grain:true,grainAmt:.12},
+      anim:{inType:'zoom',outType:'fade',inDur:2500,hold:2000,outDur:800},
+    }
+  },
+
+  {
+    id:'epopee', genre:'cinéma', name:'ÉPOPÉE',
+    desc:'Fond radial dramatique, typographie en or brûlé, letterbox, ligne ornementale.',
+    specs:['Cinzel 900','Or brûlé','Fondu','Radial'],
+    render: c => {
+      bgRadial(c,'#1a0e00','#000000');
+      vignette(c);
+      textLine(c,'L\'ÉPOPÉE','Cinzel',900,c.w*.075,c.w/2,c.h*.44,'#d4982a',{shadow:'#8a5000',blur:20,ls:c.w*.007});
+      textLine(c,'DES TEMPS OUBLIÉS','Cinzel',400,c.w*.018,c.w/2,c.h*.59,'#7a5820',{ls:c.w*.006});
+      lineH(c,c.h*.51,.5);lbox(c);
+    },
+    state:{
+      bg:{type:'gradient',color:'#1a0e00',color2:'#000000',gradType:'radial'},
+      layers:[layer('L\'ÉPOPÉE','Cinzel','900',140,12,'#d4982a',50,44,{shadow:true,shadowColor:'#8a5000',shadowBlur:25,shadowX:0,shadowY:0}),layer('DES TEMPS OUBLIÉS','Cinzel','400',28,10,'#7a5820',50,60)],
+      fx:{vignette:true,lbox:true,lineOp:.5,grain:true,grainAmt:.15},
+      anim:{inType:'fade',outType:'fade',inDur:2000,hold:2000,outDur:1000},
+    }
+  },
+
+  // ── HORREUR ─────────────────────────────────────────────
+  {
+    id:'horreur-psycho', genre:'horreur', name:'HORREUR PSYCHOLOGIQUE',
+    desc:'Fond noir absolu, typographie machine dégradée, rouge sang, grain dense.',
+    specs:['Special Elite','Rouge #cc2020','Glitch','Grain'],
+    render: c => {
+      bgSolid(c,'#060000');
+      vignette(c);
+      const size=c.w*.06;
+      CX.save();CX.font=`400 ${size}px 'Special Elite'`;CX.fillStyle='#440000';CX.textAlign='center';CX.textBaseline='middle';CX.fillText('MALVEILLANCE',c.w/2+3,c.h*.47+3);CX.restore();
+      textLine(c,'MALVEILLANCE','Special Elite',400,size,c.w/2,c.h*.47,'#cc2020',{ls:c.w*.002});
+      textLine(c,'LES OMBRES NOUS VOIENT','Special Elite',400,c.w*.014,c.w/2,c.h*.62,'#661010',{ls:0});
+      grain(c,.3);
+    },
+    state:{
+      bg:{type:'solid',color:'#060000'},
+      layers:[layer('MALVEILLANCE','Special Elite','400',110,4,'#cc2020',50,47,{stroke:true,strokeColor:'#440000',strokeW:3,shadow:true,shadowColor:'#cc0000',shadowBlur:20,shadowX:0,shadowY:0}),layer('LES OMBRES NOUS VOIENT','Special Elite','400',24,3,'#661010',50,62)],
+      fx:{vignette:true,grain:true,grainAmt:.28},
+      anim:{inType:'glitch',outType:'fade',inDur:2000,hold:2000,outDur:800},
+    }
+  },
+
+  {
+    id:'horreur-gothique', genre:'horreur', name:'HORREUR GOTHIQUE',
+    desc:'Typographie fraktur médiévale, fond pourpre sombre, vignette extrême.',
+    specs:['UnifrakturMaguntia','Bordeaux','Fondu','Gothique'],
+    render: c => {
+      bgGrad(c,'#0a0008','#050005','tb');
+      vignette(c);vignette(c);
+      textLine(c,'Das Grauen','UnifrakturMaguntia',400,c.w*.065,c.w/2,c.h*.47,'#8a1a1a',{shadow:'rgba(200,0,0,.3)',blur:25,ls:0});
+      textLine(c,'Die Nacht verschlingt alles','Cinzel',400,c.w*.015,c.w/2,c.h*.63,'#4a0a0a',{ls:c.w*.004});
+      grain(c,.2);
+    },
+    state:{
+      bg:{type:'gradient',color:'#0a0008',color2:'#050005',gradType:'tb'},
+      layers:[layer('Das Grauen','UnifrakturMaguntia','400',100,4,'#8a1a1a',50,47,{shadow:true,shadowColor:'rgba(200,0,0,.3)',shadowBlur:30,shadowX:0,shadowY:0}),layer('Die Nacht verschlingt alles','Cinzel','400',24,6,'#4a0a0a',50,63)],
+      fx:{vignette:true,grain:true,grainAmt:.22,scan:true},
+      anim:{inType:'fade',outType:'fade',inDur:2500,hold:2000,outDur:1200},
+    }
+  },
+
+  {
+    id:'slasher', genre:'horreur', name:'SLASHER',
+    desc:'Impact brutal, rouge vif sur noir, texture papier, lettres qui saignent.',
+    specs:['Anton 900','Rouge #e50000','Zoom','Impact'],
+    render: c => {
+      bgSolid(c,'#080000');
+      vignette(c);
+      textLine(c,'VENGEANCE','Anton',900,c.w*.09,c.w/2,c.h*.46,'#e50000',{shadow:'rgba(255,0,0,.4)',blur:30,ls:c.w*.001});
+      textLine(c,'NE COURT PAS','Anton',400,c.w*.03,c.w/2,c.h*.61,'#ffffff',{ls:c.w*.002});
+      grain(c,.18);lbox(c);
+    },
+    state:{
+      bg:{type:'solid',color:'#080000'},
+      layers:[layer('VENGEANCE','Anton','900',140,3,'#e50000',50,46,{shadow:true,shadowColor:'rgba(255,0,0,.5)',shadowBlur:35,shadowX:0,shadowY:4}),layer('NE COURT PAS','Anton','400',46,4,'#ffffff',50,61)],
+      fx:{vignette:true,lbox:true,grain:true,grainAmt:.2},
+      anim:{inType:'glitch',outType:'fade',inDur:1800,hold:2000,outDur:800},
+    }
+  },
+
+  // ── ACTION ──────────────────────────────────────────────
+  {
+    id:'action-blockbuster', genre:'action', name:'BLOCKBUSTER',
+    desc:'Typographie massive, ambre sur fond sombre, letterbox, choc visuel maximum.',
+    specs:['Anton 900','Ambre #f0a500','Zoom','Letterbox'],
+    render: c => {
+      bgGrad(c,'#0a0800','#1c1400','tb');
+      vignette(c);
+      textLine(c,'IMPACT','Anton',900,c.w*.1,c.w/2,c.h*.46,'#f0a500',{stroke:'#000',strokeW:c.w*.003,shadow:'rgba(240,165,0,.3)',blur:30,ls:0});
+      textLine(c,'LE MONDE NE SE REND JAMAIS','Anton',400,c.w*.024,c.w/2,c.h*.6,'#ffffff',{ls:c.w*.001});
+      lbox(c);
+    },
+    state:{
+      bg:{type:'gradient',color:'#0a0800',color2:'#1c1400',gradType:'tb'},
+      layers:[layer('IMPACT','Anton','900',180,3,'#f0a500',50,46,{stroke:true,strokeColor:'#000000',strokeW:6,shadow:true,shadowColor:'rgba(240,165,0,.4)',shadowBlur:35,shadowX:0,shadowY:0}),layer('LE MONDE NE SE REND JAMAIS','Anton','400',36,2,'#ffffff',50,60)],
+      fx:{vignette:true,lbox:true,grain:true,grainAmt:.1},
+      anim:{inType:'zoom',outType:'zoomin',inDur:1800,hold:2000,outDur:700},
+    }
+  },
+
+  {
+    id:'action-militaire', genre:'action', name:'MILITAIRE / GUERRE',
+    desc:'DM Mono stencil, vert militaire sur fond béton, grain lourd, texte tactique.',
+    specs:['DM Mono','Vert #4a7a30','Typewriter','Grain'],
+    render: c => {
+      bgSolid(c,'#0a0c08');
+      vignette(c);
+      textLine(c,'OPÉRATION','Rajdhani',700,c.w*.014,c.w/2,c.h*.38,'#4a7a30',{ls:c.w*.012});
+      textLine(c,'TERRE BRÛLÉE','Rajdhani',700,c.w*.07,c.w/2,c.h*.51,'#6aaa40',{shadow:'rgba(50,120,20,.3)',blur:15,ls:c.w*.004});
+      textLine(c,'CLASSIFIÉ - NIVEAU 5','DM Mono',400,c.w*.013,c.w/2,c.h*.64,'rgba(100,160,70,.5)',{ls:c.w*.008});
+      grain(c,.25);lbox(c);
+    },
+    state:{
+      bg:{type:'solid',color:'#0a0c08',texture:'concrete',texOp:.12},
+      layers:[layer('OPÉRATION','Rajdhani','700',24,20,'#4a7a30',50,36),layer('TERRE BRÛLÉE','Rajdhani','700',110,8,'#6aaa40',50,50,{shadow:true,shadowColor:'rgba(50,120,20,.3)',shadowBlur:18}),layer('CLASSIFIÉ - NIVEAU 5','DM Mono','400',20,16,'rgba(100,160,70,.5)',50,65)],
+      fx:{vignette:true,lbox:true,grain:true,grainAmt:.25},
+      anim:{inType:'type',outType:'fade',inDur:2000,hold:2000,outDur:800},
+    }
+  },
+
+  // ── DRAME ───────────────────────────────────────────────
+  {
+    id:'drame-social', genre:'drame', name:'DRAME SOCIAL',
+    desc:'Discrétion absolue. Typographie fine sur fond gris charbon, aucun effet superflu.',
+    specs:['Playfair 400','Blanc cassé','Fondu','Minimal'],
+    render: c => {
+      bgSolid(c,'#0c0e12');
+      vignette(c);
+      textLine(c,'Les Invisibles','Playfair Display',400,c.w*.04,c.w/2,c.h*.46,'#d8d2c4',{shadow:'rgba(0,0,0,.8)',blur:15,ls:c.w*.001});
+      lineH(c,c.h*.535,.25);
+      textLine(c,'un film de Marie Leroux','DM Mono',300,c.w*.012,c.w/2,c.h*.6,'#606070',{ls:c.w*.004});
+    },
+    state:{
+      bg:{type:'solid',color:'#0c0e12'},
+      layers:[layer('Les Invisibles','Playfair Display','400',90,3,'#d8d2c4',50,46,{shadow:true,shadowColor:'rgba(0,0,0,.8)',shadowBlur:18}),layer('un film de Marie Leroux','DM Mono','300',22,8,'#606070',50,61)],
+      fx:{vignette:true,lineOp:.28,grain:true,grainAmt:.08},
+      anim:{inType:'fade',outType:'fade',inDur:2500,hold:2500,outDur:1200},
+    }
+  },
+
+  {
+    id:'drame-historique', genre:'drame', name:'DRAME HISTORIQUE',
+    desc:'Fond sépia chaud, Playfair italique, patine et texture papier ancienne.',
+    specs:['Playfair Italic','Sépia','Slide up','Papier'],
+    render: c => {
+      bgGrad(c,'#1a1208','#100c04','tb');
+      vignette(c);
+      textLine(c,'La Dernière Cour','Playfair Display',400,c.w*.042,c.w/2,c.h*.45,'#d4b870',{shadow:'#000',blur:15,ls:c.w*.001,italic:true});
+      lineH(c,c.h*.535,.35);
+      textLine(c,'FRANCE · 1793','DM Mono',400,c.w*.013,c.w/2,c.h*.61,'#8a7040',{ls:c.w*.008});
+      grain(c,.2);
+    },
+    state:{
+      bg:{type:'gradient',color:'#1a1208',color2:'#100c04',gradType:'tb',texture:'paper',texOp:.12},
+      layers:[layer('La Dernière Cour','Playfair Display','italic 400',80,3,'#d4b870',50,45,{shadow:true,shadowColor:'#000',shadowBlur:18}),layer('FRANCE · 1793','DM Mono','400',22,14,'#8a7040',50,61)],
+      fx:{vignette:true,lineOp:.38,grain:true,grainAmt:.18},
+      anim:{inType:'slideup',outType:'fade',inDur:2000,hold:2000,outDur:1000},
+    }
+  },
+
+  // ── COMÉDIE ─────────────────────────────────────────────
+  {
+    id:'comedie-romantique', genre:'comédie', name:'COMÉDIE ROMANTIQUE',
+    desc:'Pacifico chaleureux, crème sur fond sombre doux, typographie décontractée et accueillante.',
+    specs:['Pacifico','Crème #f5e8c8','Slide up','Doux'],
+    render: c => {
+      bgGrad(c,'#100a12','#0a0810','tb');
+      vignette(c);
+      textLine(c,'Presque Parfaits','Pacifico',400,c.w*.048,c.w/2,c.h*.46,'#f5e8c8',{shadow:'rgba(200,150,100,.3)',blur:20,ls:0});
+      textLine(c,'une comédie romantique','DM Mono',300,c.w*.013,c.w/2,c.h*.61,'#a08878',{ls:c.w*.005});
+    },
+    state:{
+      bg:{type:'gradient',color:'#100a12',color2:'#0a0810',gradType:'tb'},
+      layers:[layer('Presque Parfaits','Pacifico','400',90,3,'#f5e8c8',50,46,{shadow:true,shadowColor:'rgba(200,150,100,.3)',shadowBlur:22}),layer('une comédie romantique','DM Mono','300',22,9,'#a08878',50,61)],
+      fx:{vignette:true,grain:true,grainAmt:.08},
+      anim:{inType:'slideup',outType:'fade',inDur:1800,hold:2000,outDur:800},
+    }
+  },
+
+  {
+    id:'comedie-absurde', genre:'comédie', name:'COMÉDIE ABSURDE',
+    desc:'Permanent Marker, couleurs saturées, fond dynamique, énergie chaotique contrôlée.',
+    specs:['Permanent Marker','Jaune vif','Split','Coloré'],
+    render: c => {
+      bgSolid(c,'#0a0608');
+      vignette(c);
+      textLine(c,'COMPLÈTEMENT','DM Mono',400,c.w*.016,c.w/2,c.h*.36,'rgba(255,200,0,.7)',{ls:c.w*.012});
+      textLine(c,'NULS !','Permanent Marker',400,c.w*.1,c.w/2,c.h*.52,'#f5c800',{shadow:'rgba(255,200,0,.3)',blur:15,ls:0});
+      textLine(c,'mais attachants','Pacifico',400,c.w*.022,c.w/2,c.h*.67,'rgba(200,160,0,.6)',{ls:0});
+    },
+    state:{
+      bg:{type:'solid',color:'#0a0608'},
+      layers:[layer('COMPLÈTEMENT','DM Mono','400',26,20,'rgba(255,200,0,.7)',50,34),layer('NULS !','Permanent Marker','400',160,3,'#f5c800',50,50,{shadow:true,shadowColor:'rgba(255,200,0,.3)',shadowBlur:18}),layer('mais attachants','Pacifico','400',36,3,'rgba(200,160,0,.6)',50,66)],
+      fx:{vignette:true},
+      anim:{inType:'split',outType:'fade',inDur:1500,hold:2000,outDur:700},
+    }
+  },
+
+  // ── SCI-FI ──────────────────────────────────────────────
+  {
+    id:'scifi-tech', genre:'scifi', name:'SCIENCE-FICTION TECH',
+    desc:'Orbitron cyan lumineux, fond cosmos, scanlines, ombre chromée.',
+    specs:['Orbitron 700','Cyan #00c8ff','Wipe','Scan'],
+    render: c => {
+      bgRadial(c,'#000814','#000a1c');
+      vignette(c);
+      textLine(c,'NEXUS-7','Orbitron',700,c.w*.055,c.w/2,c.h*.46,'#00c8ff',{shadow:'rgba(0,200,255,.5)',blur:30,ls:c.w*.006});
+      textLine(c,'PROTOCOLE EXTINCTION','Orbitron',400,c.w*.015,c.w/2,c.h*.61,'#0068aa',{ls:c.w*.005});
+      lineH(c,c.h*.53,.35);
+      scanlines(c);
+    },
+    state:{
+      bg:{type:'gradient',color:'#000814',color2:'#000a1c',gradType:'radial'},
+      layers:[layer('NEXUS-7','Orbitron','700',100,12,'#00c8ff',50,46,{shadow:true,shadowColor:'rgba(0,200,255,.5)',shadowBlur:35,shadowX:0,shadowY:0}),layer('PROTOCOLE EXTINCTION','Orbitron','400',26,10,'#0068aa',50,61)],
+      fx:{vignette:true,scan:true,lineOp:.35},
+      anim:{inType:'wipe',outType:'fade',inDur:2000,hold:2000,outDur:800},
+    }
+  },
+
+  {
+    id:'space-opera', genre:'scifi', name:'SPACE OPERA',
+    desc:'Cosmos immense, typographie épique condensée, pourpre galactique, letterbox.',
+    specs:['Cinzel 900','Pourpre #9060ff','Zoom','Cosmos'],
+    render: c => {
+      bgRadial(c,'#08001a','#030008');
+      vignette(c);
+      textLine(c,'L\'ULTIME','Cinzel',700,c.w*.022,c.w/2,c.h*.38,'rgba(160,120,255,.7)',{ls:c.w*.015});
+      textLine(c,'FRONTIÈRE','Cinzel',900,c.w*.085,c.w/2,c.h*.51,'#c090ff',{shadow:'rgba(120,60,255,.5)',blur:35,ls:c.w*.005});
+      textLine(c,'SAISON 3','DM Mono',400,c.w*.013,c.w/2,c.h*.65,'rgba(120,80,200,.5)',{ls:c.w*.01});
+      lbox(c);
+    },
+    state:{
+      bg:{type:'gradient',color:'#08001a',color2:'#030008',gradType:'radial'},
+      layers:[layer('L\'ULTIME','Cinzel','700',36,24,'rgba(160,120,255,.7)',50,36),layer('FRONTIÈRE','Cinzel','900',160,10,'#c090ff',50,50,{shadow:true,shadowColor:'rgba(120,60,255,.5)',shadowBlur:40}),layer('SAISON 3','DM Mono','400',22,18,'rgba(120,80,200,.5)',50,65)],
+      fx:{vignette:true,lbox:true},
+      anim:{inType:'zoom',outType:'fade',inDur:2500,hold:2000,outDur:1000},
+    }
+  },
+
+  // ── DOCUMENTAIRE ────────────────────────────────────────
+  {
+    id:'doc-reportage', genre:'doc', name:'GRAND REPORTAGE',
+    desc:'Monospace sobre, chyron rouge discret, typographie journalistique, letterbox.',
+    specs:['DM Mono','Blanc #d8d4ca','Typewriter','Letterbox'],
+    render: c => {
+      bgSolid(c,'#080a10');
+      vignette(c);
+      textLine(c,'ZONES DE SILENCE','DM Mono',400,c.w*.044,c.w/2,c.h*.46,'#d8d4ca',{ls:c.w*.012});
+      lineH(c,c.h*.53,.22);
+      textLine(c,'ENQUÊTE SPÉCIALE · 2024','DM Mono',300,c.w*.013,c.w/2,c.h*.61,'#606070',{ls:c.w*.006});
+      grain(c,.22);lbox(c);
+    },
+    state:{
+      bg:{type:'solid',color:'#080a10'},
+      layers:[layer('ZONES DE SILENCE','DM Mono','400',88,22,'#d8d4ca',50,46),layer('ENQUÊTE SPÉCIALE · 2024','DM Mono','300',22,12,'#606070',50,61)],
+      fx:{vignette:true,lbox:true,lineOp:.22,grain:true,grainAmt:.22},
+      anim:{inType:'type',outType:'fade',inDur:2000,hold:2500,outDur:800},
+    }
+  },
+
+  {
+    id:'doc-nature', genre:'doc', name:'DOCUMENTAIRE NATURE',
+    desc:'Typographie sérénité, vert forêt, fond sombre organique, grain de pellicule.',
+    specs:['Cormorant Italic','Vert #4a8060','Fondu','Organique'],
+    render: c => {
+      bgGrad(c,'#040c06','#080e08','tb');
+      vignette(c);
+      textLine(c,'Aux Confins','Cormorant Garamond',300,c.w*.015,c.w/2,c.h*.39,'rgba(180,220,160,.6)',{ls:c.w*.006,italic:true});
+      textLine(c,'du Vivant','Cormorant Garamond',600,c.w*.065,c.w/2,c.h*.51,'#a0d090',{shadow:'rgba(50,150,50,.3)',blur:20,ls:c.w*.002});
+      textLine(c,'Un film documentaire','DM Mono',300,c.w*.012,c.w/2,c.h*.65,'rgba(100,160,80,.5)',{ls:c.w*.005});
+      grain(c,.15);
+    },
+    state:{
+      bg:{type:'gradient',color:'#040c06',color2:'#080e08',gradType:'tb'},
+      layers:[layer('Aux Confins','Cormorant Garamond','italic 300',28,10,'rgba(180,220,160,.6)',50,37),layer('du Vivant','Cormorant Garamond','600',120,5,'#a0d090',50,50,{shadow:true,shadowColor:'rgba(50,150,50,.3)',shadowBlur:22}),layer('Un film documentaire','DM Mono','300',20,10,'rgba(100,160,80,.5)',50,65)],
+      fx:{vignette:true,grain:true,grainAmt:.15},
+      anim:{inType:'fade',outType:'fade',inDur:2500,hold:2500,outDur:1200},
+    }
+  },
+
+  // ── AUTRE ───────────────────────────────────────────────
+  {
+    id:'noir', genre:'autre', name:'FILM NOIR',
+    desc:'Contraste extrême, Bebas Neue blanc pur sur noir absolu, séparation des mots.',
+    specs:['Bebas Neue','Blanc pur','Split','Noir/Blanc'],
+    render: c => {
+      bgSolid(c,'#000000');
+      vignette(c);
+      textLine(c,'OMBRES','Bebas Neue',400,c.w*.09,c.w/2,c.h*.44,'#ffffff',{ls:c.w*.005});
+      lineH(c,c.h*.52,.3);
+      textLine(c,'ET MENSONGES','Bebas Neue',400,c.w*.05,c.w/2,c.h*.58,'#888888',{ls:c.w*.007});
+      lbox(c);grain(c,.15);
+    },
+    state:{
+      bg:{type:'solid',color:'#000000'},
+      layers:[layer('OMBRES','Bebas Neue','400',160,10,'#ffffff',50,44),layer('ET MENSONGES','Bebas Neue','400',88,14,'#888888',50,58)],
+      fx:{vignette:true,lbox:true,lineOp:.3,grain:true,grainAmt:.15},
+      anim:{inType:'split',outType:'fade',inDur:2000,hold:2000,outDur:900},
+    }
+  },
+
+  {
+    id:'western', genre:'autre', name:'WESTERN',
+    desc:'Cinzel sépia, dégradé désert, grain lourd, letterbox, slide up lent.',
+    specs:['Cinzel 700','Or poussiéreux','Slide up','Sépia'],
+    render: c => {
+      bgGrad(c,'#1a1006','#0e0a04','tb');
+      vignette(c);
+      textLine(c,'LA LOI DU DÉSERT','Cinzel',700,c.w*.054,c.w/2,c.h*.46,'#c8a060',{shadow:'#000',blur:14,ls:c.w*.006});
+      lineH(c,c.h*.53,.38);
+      textLine(c,'LES HORS-LA-LOI','DM Mono',400,c.w*.013,c.w/2,c.h*.61,'#7a6030',{ls:c.w*.007});
+      grain(c,.22);lbox(c);
+    },
+    state:{
+      bg:{type:'gradient',color:'#1a1006',color2:'#0e0a04',gradType:'tb',texture:'noise',texOp:.08},
+      layers:[layer('LA LOI DU DÉSERT','Cinzel','700',100,12,'#c8a060',50,46,{shadow:true,shadowColor:'#000',shadowBlur:16,shadowX:3,shadowY:4}),layer('LES HORS-LA-LOI','DM Mono','400',22,14,'#7a6030',50,61)],
+      fx:{vignette:true,lbox:true,lineOp:.38,grain:true,grainAmt:.22},
+      anim:{inType:'slideup',outType:'fade',inDur:2200,hold:2000,outDur:1000},
+    }
+  },
+
+  {
+    id:'thriller', genre:'autre', name:'THRILLER',
+    desc:'Rajdhani froid et précis, blanc glacé, wipe horizontal, tension minimale.',
+    specs:['Rajdhani 600','Blanc glacé','Wipe','Tension'],
+    render: c => {
+      bgGrad(c,'#080c12','#040608','tb');
+      vignette(c);
+      textLine(c,'TRAHISON','Rajdhani',700,c.w*.075,c.w/2,c.h*.45,'#e8e8f0',{shadow:'rgba(200,210,255,.2)',blur:20,ls:c.w*.008});
+      textLine(c,'ON NE SAIT PAS QUI MENTAIT','Rajdhani',600,c.w*.018,c.w/2,c.h*.61,'#6070a0',{ls:c.w*.005});
+      lineH(c,c.h*.527,.25);
+    },
+    state:{
+      bg:{type:'gradient',color:'#080c12',color2:'#040608',gradType:'tb'},
+      layers:[layer('TRAHISON','Rajdhani','700',138,14,'#e8e8f0',50,45,{shadow:true,shadowColor:'rgba(200,210,255,.25)',shadowBlur:22}),layer('ON NE SAIT PAS QUI MENTAIT','Rajdhani','600',28,10,'#6070a0',50,61)],
+      fx:{vignette:true,lineOp:.25},
+      anim:{inType:'wipe',outType:'fade',inDur:2000,hold:2000,outDur:900},
+    }
+  },
+
+  {
+    id:'court-metrage', genre:'autre', name:'COURT-MÉTRAGE D\'AUTEUR',
+    desc:'Monospace minimaliste, centrage parfait, fond noir absolu, message essentiel.',
+    specs:['DM Mono 300','Gris doux','Fondu','Minimaliste'],
+    render: c => {
+      bgSolid(c,'#000000');
+      vignette(c);
+      textLine(c,'ce qui reste','DM Mono',300,c.w*.032,c.w/2,c.h*.48,'#c0bdb5',{ls:c.w*.008});
+    },
+    state:{
+      bg:{type:'solid',color:'#000000'},
+      layers:[layer('ce qui reste','DM Mono','300',60,16,'#c0bdb5',50,50)],
+      fx:{vignette:true},
+      anim:{inType:'fade',outType:'fade',inDur:3000,hold:3000,outDur:1500},
+    }
+  },
+
+  {
+    id:'mockumentaire', genre:'doc', name:'MOCKUMENTAIRE',
+    desc:'Found footage, typographie utilitaire dégradée, timecode, aspect reportage terrain.',
+    specs:['Special Elite','Blanc cassé','Typewriter','Found footage'],
+    render: c => {
+      bgSolid(c,'#090908');
+      vignette(c);
+      textLine(c,'REC ●','DM Mono',400,c.w*.014,c.w*.12,c.h*.12,'#e03535',{ls:0});
+      textLine(c,'00:12:34:08','DM Mono',300,c.w*.012,c.w*.88,c.h*.12,'rgba(200,200,190,.5)',{ls:0});
+      textLine(c,'LES DERNIERS','Special Elite',400,c.w*.052,c.w/2,c.h*.44,'#e8e4dc',{ls:c.w*.002});
+      textLine(c,'VRAIS EXPERTS','Special Elite',400,c.w*.052,c.w/2,c.h*.57,'#e8e4dc',{ls:c.w*.002});
+      textLine(c,'Document déclassifié · Confidentiel','DM Mono',300,c.w*.011,c.w/2,c.h*.7,'rgba(200,200,180,.4)',{ls:c.w*.004});
+      grain(c,.28);
+    },
+    state:{
+      bg:{type:'solid',color:'#090908'},
+      layers:[layer('REC ●','DM Mono','400',22,3,'#e03535',11,10,{align:'left'}),layer('00:12:34:08','DM Mono','300',20,3,'rgba(200,200,190,.5)',88,10,{align:'right'}),layer('LES DERNIERS\nVRAIS EXPERTS','Special Elite','400',96,4,'#e8e4dc',50,50),layer('Document déclassifié · Confidentiel','DM Mono','300',18,8,'rgba(200,200,180,.4)',50,70)],
+      fx:{vignette:true,grain:true,grainAmt:.28},
+      anim:{inType:'type',outType:'fade',inDur:2000,hold:2500,outDur:800},
+    }
+  },
+
+];
+
+// ══════════════════════════════════════════════════════════
+// CANVAS RENDER HELPERS  
+// ══════════════════════════════════════════════════════════
+let CX,W,H;
+function setCtx(canvas){CX=canvas.getContext('2d');W=canvas.width;H=canvas.height;}
+
+function bgSolid(c,color){CX.fillStyle=color;CX.fillRect(0,0,W,H);}
+function bgGrad(c,c1,c2,dir){
+  let g;
+  if(dir==='tb') g=CX.createLinearGradient(W/2,0,W/2,H);
+  else g=CX.createLinearGradient(0,H/2,W,H/2);
+  g.addColorStop(0,c1);g.addColorStop(1,c2);
+  CX.fillStyle=g;CX.fillRect(0,0,W,H);
+}
+function bgRadial(c,c1,c2){
+  const g=CX.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*.72);
+  g.addColorStop(0,c1);g.addColorStop(1,c2);
+  CX.fillStyle=g;CX.fillRect(0,0,W,H);
+}
+function vignette(){
+  const g=CX.createRadialGradient(W/2,H/2,H*.12,W/2,H/2,W*.72);
+  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.75)');
+  CX.fillStyle=g;CX.fillRect(0,0,W,H);
+}
+function lbox(){
+  const bh=Math.round((H-W/2.39)/2);
+  CX.fillStyle='#000';CX.fillRect(0,0,W,bh);CX.fillRect(0,H-bh,W,bh);
+}
+function lineH(c,y,alpha){
+  CX.save();CX.globalAlpha=alpha;CX.strokeStyle='rgba(255,255,255,.6)';
+  CX.lineWidth=.8;const pad=W*.12;
+  CX.beginPath();CX.moveTo(pad,y);CX.lineTo(W-pad,y);CX.stroke();CX.restore();
+}
+function grain(c,amt){
+  const id=CX.createImageData(W,H);const d=id.data;
+  for(let i=0;i<d.length;i+=4){const g=Math.random()*255;d[i]=d[i+1]=d[i+2]=g;d[i+3]=255;}
+  const gc=document.createElement('canvas');gc.width=W;gc.height=H;gc.getContext('2d').putImageData(id,0,0);
+  CX.save();CX.globalAlpha=amt;CX.drawImage(gc,0,0);CX.restore();
+}
+function scanlines(){
+  CX.save();
+  for(let y=0;y<H;y+=4){CX.fillStyle='rgba(0,0,0,.12)';CX.fillRect(0,y,W,1);}
+  CX.restore();
+}
+
+function textLine(c,text,font,weight,size,x,y,color,opts={}){
+  const sz=size;
+  const w=String(weight); // normalise en string
+  CX.save();
+  if(opts.italic||w.includes('italic')){
+    const wNum=w.replace('italic','').trim()||'400';
+    CX.font=`italic ${wNum} ${sz}px '${font}'`;
+  } else {
+    CX.font=`${w} ${sz}px '${font}'`;
+  }
+  CX.textAlign=opts.align||'center';CX.textBaseline='middle';
+  if('letterSpacing' in CX) CX.letterSpacing=(opts.ls||0)+'px';
+  if(opts.stroke){CX.strokeStyle=opts.stroke;CX.lineWidth=(opts.strokeW||2)*2;CX.lineJoin='round';CX.strokeText(text,x,y);}
+  if(opts.shadow){CX.shadowColor=opts.shadow;CX.shadowBlur=opts.blur||10;CX.shadowOffsetX=0;CX.shadowOffsetY=0;}
+  CX.fillStyle=color;CX.fillText(text,x,y);
+  CX.shadowColor='transparent';CX.restore();
+}
+
+// ══════════════════════════════════════════════════════════
+// BUILD UI
+// ══════════════════════════════════════════════════════════
+function encodeState(tpl){
+  const s={
+    layers:tpl.state.layers||[],activeLayer:0,
+    bg:{type:'solid',color:'#000000',color2:'#1a0800',gradType:'tb',blur:0,darken:.3,texture:'none',texOp:.15,...(tpl.state.bg||{})},
+    fx:{vignette:true,lbox:false,grain:false,grainAmt:.2,scan:false,thirds:false,lineOp:0,logoSz:12,logoX:50,logoY:88,...(tpl.state.fx||{})},
+    grade:{on:false,brightness:0,contrast:0,saturation:0,temp:0,tint:0,lift:0,gamma:0,gain:0,vignColor:'#000000',...(tpl.state.grade||{})},
+    anim:{inType:'fade',inDur:2000,hold:1500,outType:'fade',outDur:800,...(tpl.state.anim||{})},
+    exp:{resolution:'1080p',vq:8000000,fps:30,gifFps:10,gifW:800},
+    _bgImg:null,_bgVid:null,_logo:null,_tex:null,_grain:null,
+  };
+  return btoa(unescape(encodeURIComponent(JSON.stringify(s))));
+}
+
+function openInMaker(tpl){
+  const b64=encodeState(tpl);
+  window.open('titremaker.html#prj='+b64,'_blank');
+}
+
+const grid=document.getElementById('grid');
+
+TEMPLATES.forEach(tpl=>{
+  const card=document.createElement('div');
+  card.className='card';
+  card.dataset.genre=tpl.genre;
+
+  const canvasId='cvs-'+tpl.id;
+  card.innerHTML=`
+    <div class="card-canvas-wrap">
+      <canvas id="${canvasId}" width="640" height="360"></canvas>
+      <div class="card-overlay"></div>
+      <button class="card-use" onclick="openInMaker(TEMPLATES.find(t=>t.id==='${tpl.id}'));event.stopPropagation()">Utiliser ce template →</button>
+    </div>
+    <div class="card-info">
+      <div class="card-genre">${tpl.genre}</div>
+      <div class="card-name">${tpl.name}</div>
+      <div class="card-desc">${tpl.desc}</div>
+      <div class="card-specs">${tpl.specs.map(s=>`<span class="spec">${s}</span>`).join('')}</div>
+    </div>`;
+
+  card.addEventListener('click',()=>openInMaker(tpl));
+  grid.appendChild(card);
+});
+
+// Render all previews after fonts load
+document.fonts.ready.then(()=>{
+  TEMPLATES.forEach(tpl=>{
+    try{
+      const canvas=document.getElementById('cvs-'+tpl.id);
+      if(!canvas) return;
+      setCtx(canvas);
+      CX.clearRect(0,0,W,H);
+      tpl.render(canvas);
+    }catch(e){console.warn('Render error',tpl.id,e);}
+  });
+});
+
+// FILTERS
+function filter(genre,btn){
+  document.querySelectorAll('.flt').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.card').forEach(c=>{
+    const cg=c.dataset.genre;
+    c.classList.toggle('hidden',genre!=='all'&&cg!==genre);
+  });
+  const visible=document.querySelectorAll('.card:not(.hidden)').length;
+  document.getElementById('count-lbl').textContent=visible+' template'+(visible>1?'s':'');
+}
+
+// Init count
+document.getElementById('count-lbl').textContent=TEMPLATES.length+' templates';
+document.getElementById('ft-r').textContent=new Date().getFullYear()+' · Larzac Studio';
+</script>
+</body>
+</html>
