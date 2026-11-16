@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Le Lab — Studio Larzac</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
+<style>
+:root{--bg:#020805;--panel:#03110a;--fg:#19ff66;--dim:#1fa04a;--mut:#3fae66;--line:#0e5a2a;--blue:#2aa8ff;--bad:#ff7b6e;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#020805}}
+:root[data-theme="dark"]{--bg:#020805}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "Share Tech Mono",ui-monospace,Menlo,Consolas,"Courier New",monospace;min-height:100vh}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:22px;font-weight:400;letter-spacing:.3em;text-shadow:0 0 12px var(--fg)}
+h1 i{display:inline-block;width:12px;height:22px;background:var(--fg);margin-left:10px;vertical-align:-3px;animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.hr{color:var(--dim);font-size:12px;letter-spacing:.15em;text-align:right}
+.lay{display:grid;grid-template-columns:270px 1fr;min-height:calc(100vh - 62px)}
+aside{border-right:1px solid var(--line);padding:16px 0}
+aside h2{margin:18px 0 6px;padding:0 18px 6px;font-size:13px;font-weight:400;letter-spacing:.22em;color:var(--dim);border-bottom:1px solid var(--line);text-transform:uppercase}
+aside h2:first-child{margin-top:0}
+aside button{display:block;width:100%;text-align:left;font:inherit;font-size:14px;letter-spacing:.08em;color:var(--mut);background:none;border:0;padding:5px 18px;cursor:pointer}
+aside button:hover{color:var(--fg)}
+aside button[aria-pressed="true"]{color:var(--fg);text-shadow:0 0 8px var(--fg)}
+main{padding:18px 20px 60px;min-width:0}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.tabs button{font:inherit;letter-spacing:.2em;font-size:14px;color:var(--mut);background:none;border:0;border-bottom:2px solid transparent;padding:10px 16px;cursor:pointer;text-transform:uppercase}
+.tabs button:hover{color:var(--fg)}
+.tabs button[aria-selected="true"]{color:var(--fg);background:#06240f;border-bottom-color:var(--fg);text-shadow:0 0 8px var(--fg)}
+button:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin-bottom:16px}
+.box{border:1px solid var(--fg);background:var(--panel);padding:14px 16px}
+.box h3{margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line);font-size:14px;font-weight:400;letter-spacing:.22em;color:var(--mut);text-transform:uppercase}
+.it{padding:8px 0;border-bottom:1px solid #0a2a15}
+.it:last-child{border:0}
+.it b{font-weight:400;letter-spacing:.04em}
+.it b::before{content:"> ";color:var(--dim)}
+.d{display:block;color:var(--mut);font-size:13px;margin:2px 0 0 14px}
+.bg{font-size:12px;letter-spacing:.06em;margin-left:6px}
+.E{color:var(--fg);background:#08381a;padding:0 4px;font-weight:700}
+.R{color:var(--blue)}
+.O{color:var(--dim)}
+.tips{border:1px dashed var(--line);padding:12px 16px;margin-top:10px}
+.tips p{margin:0 0 6px;color:var(--dim);letter-spacing:.15em;font-size:13px}
+.tips div{padding:3px 0}
+.tips div::before{content:"> ";color:var(--dim)}
+.ck{display:flex;gap:10px;align-items:center;padding:8px 4px;border-bottom:1px dashed var(--line);cursor:pointer}
+input[type=checkbox]{accent-color:var(--fg);width:18px;height:18px;flex:none}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.pc div{font-size:13px;color:var(--mut)}
+.pc .c{color:var(--bad)}
+.n{color:var(--dim);font-size:12px;margin-top:6px}
+header{flex-wrap:wrap}
+#q{flex:1;max-width:340px;min-width:140px;font:inherit;font-size:14px;color:var(--fg);background:transparent;border:1px solid var(--line);padding:7px 10px}
+#q:focus{outline:2px solid var(--fg)}#q::placeholder{color:var(--dim)}
+.fm{display:grid;gap:12px}
+.fm label{display:flex;flex-direction:column;font-size:12px;letter-spacing:.1em;color:var(--mut);text-transform:uppercase}
+.fm input,.fm textarea,.fm select{font:inherit;font-size:14px;background:var(--bg);color:var(--fg);border:1px solid var(--line);padding:6px 8px;letter-spacing:0;text-transform:none}
+.fm input:focus,.fm textarea:focus,.fm select:focus{outline:2px solid var(--fg)}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.meta{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin:0 0 14px}
+.meta label{display:flex;flex-direction:column;font-size:12px;letter-spacing:.12em;color:var(--mut);text-transform:uppercase}
+.meta input{font:inherit;font-size:15px;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--fg);padding:4px 0;outline:0;text-transform:none;letter-spacing:0}
+.meta input:focus{border-bottom-color:var(--fg)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.row button{font:inherit;color:var(--fg);background:none;border:1px solid var(--fg);padding:8px 14px;cursor:pointer;letter-spacing:.1em}
+.row button:hover{background:#08381a}
+details.tp{margin:4px 0 0 14px}
+details.tp summary{cursor:pointer;color:var(--dim);font-size:12px;letter-spacing:.1em}
+.tl{margin:4px 0 0;padding:0;list-style:none;font-size:13px;color:var(--mut)}
+.tl li::before{content:"+ ";color:var(--dim)}
+@media print{body{background:#fff;color:#000;font-size:12pt}header,aside,.tabs,.noprint{display:none!important}.lay{display:block}main{padding:0}.box{border:1px solid #000;background:#fff;color:#000;break-inside:avoid}.box h3{color:#000;border-color:#000}.meta label{color:#000}.meta input{color:#000;border-bottom:1px solid #000}.ck{color:#000;border-color:#999}input[type=checkbox]{accent-color:#000}}
+@media (max-width:760px){.meta{grid-template-columns:1fr}.lay{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line);max-height:42vh;overflow:auto}.hr{display:none}.pc{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){h1 i{animation:none}}
+</style>
+</head>
+<body>
+<header><h1>▶ LE LAB<i></i></h1><input id="q" type="search" placeholder="Rechercher un matériel, une scène…" aria-label="Rechercher"><div class="hr">STUDIO LARZAC // MATÉRIEL DE TOURNAGE</div></header>
+<div class="lay"><aside id="side" aria-label="Types de scène"></aside><main id="main"></main></div>
+<script>
+const CATS=[["cam","Caméras"],["obj","Objectifs"],["son","Son"],["lum","Lumière"],["stab","Stabilisation"],["acc","Accessoires"]];
+const G={
+gh4:["cam","Panasonic GH4 (x2)","Micro 4/3, 4K, ralenti 1080p jusqu’à 96 i/s.",["4K et ralenti","Optiques interchangeables","Plusieurs boîtiers = multicam"],["Pas de stabilisation capteur","Bruit visible au-delà de ISO 1600","Autofocus peu fiable en vidéo"]],
+osmo:["cam","Osmo Pocket 3","Caméra à gimbal 3 axes, capteur 1 pouce.",["Stabilisation intégrée","Minuscule, se fixe partout","Bon en basse lumière pour sa taille"],["Focale fixe grand-angle","Écran et batterie petits","Son interne moyen"]],
+s16:["obj","Samyang cinéma 16mm t/2.2","Grand angle manuel (32 mm équiv.), bague crantée.",["Diaph. sans crans, pro","Immersif, amplifie les distances","Résistant, rendu ciné"],["Tout en manuel","Mise au point à faire soi-même"]],
+l25:["obj","Lumix G 25mm f/1.7","Objectif standard (50 mm équiv.), autofocus.",["Lumineux et léger","Rendu naturel pour les visages","Autofocus rapide"],["Pas de stabilisation","Moins ciné que le Samyang"]],
+s60:["obj","Sigma 60mm f/2.8","Télé court (120 mm équiv.) net et compact.",["Compresse, isole le sujet","Très net, idéal pour les détails","Permet de rester loin"],["Peu lumineux de nuit","Cadre étroit en intérieur"]],
+h4n:["son","Zoom H4n Pro","Enregistreur 4 pistes, XLR, micros stéréo intégrés.",["Son séparé, plus propre","Entrées XLR","Double enregistrement de secours"],["Synchronisation au montage","Souffle à gain élevé"]],
+mke:["son","Sennheiser MKE 440","Micro canon stéréo compact pour caméra.",["Stéréo directive","Léger, sur la caméra","Bonne ambiance naturelle"],["Sensible au vent (bonnette)","Moins proche qu’une perche"]],
+refl:["lum","Réflecteur 5 faces","Renvoie, diffuse ou bloque la lumière.",["Sans électricité","Léger, pas cher","Déboucher les ombres"],["Dépend d’une source","Se tient mal dans le vent"]],
+tri:["stab","Trépied vidéo","Support stable à rotule fluide.",["Image stable","Panoramiques doux","Cadres fixes raccord"],["Lourd, peu mobile","Mise en place plus lente"]],
+gh5:["cam","Panasonic GH5 (x2)","Micro 4/3 stabilisé, 4K 60p 10 bits.",["Stabilisation capteur","4K 60p, enregistrement long","Meilleure image que le GH4"],["Plus lourd","Gros fichiers, cartes rapides requises"]],
+drone:["cam","DJI Mini 2 (drone)","Drone de moins de 250 g, 4K 30p, gimbal 3 axes.",["Plans aériens d’établissement","Léger, rapide à déployer","Gimbal 3 axes stable"],["Pas d’évitement d’obstacles","Sensible au vent fort","Autonomie d’environ 30 min","Règlementation à respecter"]],
+s35:["obj","Samyang cine 35mm","Focale ciné manuelle (70 mm équiv.).",["Rendu ciné, bagues crantées","Plans moyens naturels"],["Tout en manuel","Pas de stabilisation"]],
+s85:["obj","Samyang cine 85mm","Télé ciné manuel (170 mm équiv.).",["Forte compression","Fond très flou, isole le sujet"],["Cadre très serré","Demande du recul et une mise au point précise"]],
+l1435:["obj","Lumix 14-35mm","Zoom standard à grand-angle (28-70 mm équiv.).",["Polyvalent, un seul objectif","Autofocus"],["Moins ciné qu’un fixe cinéma"]],
+ndr:["acc","Filtre ND Rodenstock","Filtre gris neutre de qualité.",["Garde 1/50 ou 1/100 en plein soleil","Couleurs fidèles"],["Un diamètre par objectif","Fragile et coûteux"]],
+ndb:["acc","Filtre ND Boya","Filtre gris neutre économique.",["Abordable","Garde la vitesse voulue en plein soleil"],["Dominante colorée possible","Un diamètre par objectif"]],
+magic:["acc","Magic arm","Bras articulé pour fixer caméra ou accessoire.",["Positions impossibles autrement","Fixe une caméra ou une lumière"],["Vibrations selon le support","Charge limitée"]],
+mon:["acc","Moniteur 4K Neewer (batterie)","Écran externe sur batterie avec aides au cadrage.",["Mise au point et exposition précises","Visible par toute l’équipe"],["Batterie à charger","Câble HDMI et encombrement"]],
+vmic:["son","Rode VideoMic","Micro canon léger sur la caméra.",["Léger, simple","Meilleur que le micro interne"],["Moins directif qu’un micro sur perche","Sensible au vent"]],
+vmp:["son","Rode VideoMic Pro","Micro canon sur la caméra avec réglage de gain.",["Meilleur son que le micro interne","Réglages de gain"],["Sensible au vent (bonnette)","Alimentation à surveiller"]],
+ntg:["son","Perche son + NTG2","Micro canon pro sur perche.",["Meilleure prise de son du dialogue","Au plus près sans apparaître"],["Demande un perchman","Bras fatigué à la longue"]],
+mini:["son","DJI Mic Mini","Micro sans fil compact à clipser.",["Très discret","Sans câble, facile à glisser"],["Une voix par micro","Batterie à surveiller"]],
+wgo:["son","Rode Wireless GO","Micro sans fil avec récepteur sur la caméra.",["Voix constante, sans câble","Accepte un micro-cravate externe"],["Frottements des vêtements","Batteries à surveiller"]],
+ledrgb:["lum","3 panneaux LED RGB Neewer (batterie)","Panneaux couleur à batterie, teinte réglable.",["Ambiances colorées","Autonomes, faciles à placer"],["Moins efficaces en blanc qu’un bicolore","Batteries à charger"]],
+ledbi:["lum","3 panneaux LED bicolores (batterie)","Panneaux blanc chaud à froid à batterie.",["Température réglable","3 sources pour un éclairage complet"],["Lumière dure sans diffuseur","Batteries à charger"]],
+ronin:["stab","DJI Ronin M","Gimbal 3 axes pour caméra hybride.",["Mouvements fluides","Plans de suivi spectaculaires"],["Équilibrage à chaque montage","Fatigue le bras","Charge limitée"]],
+rig:["stab","Shoulder rig (x2)","Épaulière pour tenir la caméra à l’épaule.",["Stabilité à main levée","Deux rigs, deux caméras mobiles"],["Poids et volume","Moins fluide qu’un gimbal"]]};
+const LB={E:"ESSENTIEL",R:"RECOMMANDÉ",O:"OPTIONNEL"};
+const TIPS={
+gh4:["Obturateur à deux fois la cadence (1/50 à 25 i/s)","Reste entre ISO 100 et 1600, au-delà le bruit monte vite","Mise au point manuelle avec la loupe plutôt que l’autofocus","Prévois 2 à 3 batteries chargées par boîtier"],
+drone:["Vérifie la réglementation locale (enregistrement, zones interdites) avant de voler","Repère les obstacles et la météo, ne vole pas par vent fort","Garde le drone en vue et prévois des batteries de rechange","Tourne en 25 i/s avec un obturateur autour de 1/50, filtre ND si plein soleil"],
+gh5:["Renseigne la focale des objectifs manuels pour activer la stabilisation capteur","Vérifie le débit de tes cartes avant de tourner en 4K 60p 10 bits","Garde la même cadence et le même profil que les GH4 en multicam"],
+osmo:["Choisis 25 i/s et 1/50 pour raccorder avec les GH","Mode suivi pour des panoramiques fluides, verrouille l’axe pour un plan fixe","L’autonomie est limitée : prévois une recharge"],
+s16:["Fais la mise au point avec la loupe à f/4, puis ouvre si besoin","Le grand angle déforme les bords : garde les visages au centre","La bague de diaph sans crans permet de changer l’ouverture en douceur"],
+s35:["Repère les distances de mise au point sur la bague avec du ruban","f/4 donne plus de marge de mise au point sur un sujet mobile","Cadre à hauteur des yeux pour des plans moyens naturels"],
+s85:["Prévois du recul : 170 mm équiv. demande de la distance","À f/2 la mise au point est très fine, travaille à f/2.8 ou f/4 sur un sujet mobile","Le moindre tremblement se voit : trépied ou rig conseillé"],
+l25:["Autofocus continu pour un sujet mobile, manuel pour un sujet fixe","f/2.8 pour la netteté, f/1.7 en basse lumière","Pas de stabilisation : appuie-toi sur le GH5 ou un support"],
+s60:["Excellent pour les gros plans et les détails","À f/2.8 la profondeur reste faible : vérifie la netteté au moniteur","Utilise la distance pour isoler un visage dans un décor chargé"],
+l1435:["Reste sur une même focale pendant un plan pour des cadres raccord","Évite le zoom visible sauf effet voulu","Pratique pour repérer les cadres avant de passer sur un fixe"],
+h4n:["Règle le gain pour des crêtes autour de -12 dB","Fais un claquement ou un clap au début de chaque prise pour la synchro","Place-le au plus près du sujet, pas sur la caméra"],
+mke:["Mets la bonnette dès qu’il y a du vent","Règle le niveau sur la caméra avant la prise","Éloigne-le des sources de bruit parasite (ventilateurs, écrans)"],
+vmic:["Garde la bonnette en extérieur","Évite que le câble frotte sur le micro","Contrôle le niveau en écoute avant de tourner"],
+vmp:["Règle le gain du micro puis réduis le niveau caméra","Active le filtre coupe-bas en cas de vent ou de bruit de fond","Garde de la distance avec le sujet, il capte très large"],
+ntg:["Place le micro à 30-60 cm au-dessus de l’acteur, dirigé vers sa bouche","Répète les mouvements : le perchman doit les anticiper","Laisse du mou dans le câble XLR et utilise une bonnette dehors"],
+mini:["Clipse le micro sur le col, à 15-20 cm de la bouche","Charge émetteurs et récepteur avant chaque tournage","Teste la portée et les interférences sur place"],
+wgo:["Clipse à 15-20 cm de la bouche, hors des frottements de vêtement","Appaire émetteur et récepteur avant la prise","Surveille les batteries sur les prises longues"],
+refl:["Place-le côté ombre, incliné vers le visage","Blanc pour adoucir, argent pour plus d’éclat, doré pour réchauffer","Fais-le tenir par quelqu’un : le vent l’emporte"],
+ledrgb:["Utilise la couleur pour le fond, pas sur le visage","Joue sur saturation et intensité plutôt que de monter l’ISO","Éloigne ou diffuse le panneau pour une lumière plus douce"],
+ledbi:["Règle la température sur celle de la scène (5600 K jour, 3200 K tungstène)","Principale à 45°, appoint plus faible côté opposé, contre pour détacher le sujet","Ajoute un diffuseur ou renvoie la lumière sur un mur pour adoucir"],
+ronin:["Équilibre le gimbal avec l’objectif et le moniteur déjà montés","Plie les genoux et marche talon-pointe pour un plan fluide","Teste le montage la veille et vérifie la charge maximale avec le GH5"],
+rig:["Règle la hauteur pour que le poids repose sur l’épaule","Cale la caméra contre la joue ou le front pour plus de stabilité","Les deux rigs permettent de tourner deux caméras mobiles"],
+tri:["Mets à niveau avec la bulle avant de cadrer","Serre la plateforme et teste le panoramique avant la prise","Écarte bien les jambes sur sol irrégulier"],
+ndr:["Choisis un filtre au bon diamètre pour l’objectif","Vérifie la balance des blancs avec le filtre en place","Nettoie-le avant chaque tournage avec une lingette"],
+ndb:["Fais la balance des blancs avec le filtre en place","Ajuste la densité pour garder l’ouverture voulue","Range-le dans son étui pour éviter les rayures"],
+magic:["Serre toutes les articulations à fond avant de lâcher","Ajoute une sangle de sécurité sur la caméra","Fais une prise test pour vérifier l’absence de vibrations"],
+mon:["Active le focus peaking et les zébras","Charge la batterie avant la sortie","Prévois un câble HDMI de secours"]};
+const tipsList=id=>`<ul class="tl">${(TIPS[id]||[]).map(t=>`<li>${t}</li>`).join("")}</ul>`;
+const esc=v=>String(v).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let META={};try{META=JSON.parse(localStorage.getItem("lab-meta")||"{}")}catch(e){}
+let Q="",ED=null,PD=null,RA=false;let CU={gear:{},tips:{},use:{},del:[]};try{CU=Object.assign(CU,JSON.parse(localStorage.getItem("lab-custom")||"{}"))}catch(e){}
+const SC=[
+["Fiction - Dialogue",[
+["dialogue","Dialogue / Champ-CC",[["gh4","E","2 caméras : champ et contre-champ"],["l25","E","Visage naturel, ouvre à f/1.7"],["tri","E","Cadres fixes raccord"],["h4n","R","Voix propre enregistrée à part"],["mke","R","Son de secours sur la caméra"],["refl","O","Adoucit le visage"]],["Respecte l’axe des 180° entre les deux caméras","Même hauteur d’yeux et même focale pour les deux champs","Enregistre 30 s de silence de la pièce"]],
+["monologue","Monologue",[["gh4","E","Cadre fixe, longue prise"],["l25","E","Visage naturel"],["tri","E","Stabilité sur la durée"],["h4n","E","Voix claire sur toute la prise"],["refl","O","Lumière douce"]],["Fais une prise longue, puis un plan plus serré pour le montage","Écoute le son avant chaque prise"]],
+["portrait","Portrait / Gros plan",[["gh4","E","Boîtier principal"],["s60","E","Compresse, visage flatteur"],["l25","R","Alternative plus large"],["refl","R","Déboucher l’ombre"],["tri","R","Cadre stable"]],["Mise au point sur l’œil le plus proche","Ouvre à f/2.8 pour un fond flou","Recule de 3 m avec le 60 mm"]]]],
+["Fiction - Action",[
+["course","Course / Poursuite",[["osmo","E","Suivi stabilisé en courant"],["gh4","E","Plans larges fixes"],["s16","R","Grand angle, plan immersif"],["tri","R","Plan large fixe"],["mke","O","Ambiance sonore"]],["Repère le parcours à pied avant","Prises courtes, change d’angle à chaque fois","Obturateur 1/100 à 50 i/s pour du ralenti","Plan large de situation avant l’action"]],
+["bagarre","Bagarre / Combat",[["gh4","E","2 à 3 angles en multicam"],["s16","E","Immersif, danger proche"],["osmo","R","Point de vue au ras de l’action"],["h4n","O","Sons d’impact séparés"]],["Répète la chorégraphie au ralenti","Le coup se joue par l’angle caméra, pas par le contact","Prévois des plans de coupe sur les réactions"]],
+["chute","Chute / Cascade",[["gh4","E","Multicam obligatoire — la chute ne se refait pas souvent"],["osmo","R","Angle au sol ou très serré — point de vue inattendu"],["s16","E","Grand angle — amplifier hauteur et vitesse de chute"],["l25","R","Plan poitrine avant la chute — lire peur ou surprise"],["s60","O","Angle éloigné sécurisé — capturer la chute en entier"],["h4n","E","Son d’impact — enregistrer séparément pour montage"],["mke","R","Ambiance sonore globale — espace et réverb naturels"],["refl","O","Extérieur — déboucher le visage avant la chute"],["tri","E","Plan large fixe — capturer toute la trajectoire de la chute"]],["SÉCURITÉ AVANT TOUT : tapis de chute, coordinateur cascade si besoin","Lance les caméras avant l’action et garde-les tournantes","Un angle par caméra, aucun doublon","Fais une répétition à vitesse réduite"]],
+["foule","Scène de foule",[["gh4","E","Plan large d’établissement"],["s16","E","Grand angle pour l’espace"],["s60","R","Isoler des visages dans la foule"],["l25","R","Plans moyens"],["mke","R","Ambiance"],["tri","R","Plan large stable"]],["Donne une action précise à chaque groupe de figurants","Commence par le plan large, puis resserre","Place les regards dans une même direction"]],
+["vehicule","Scène en véhicule",[["osmo","E","Petit, se fixe dans l’habitacle"],["gh4","R","Plan extérieur fixe"],["s16","R","Grand angle dans l’habitacle"],["h4n","R","Son du moteur et du dialogue"]],["Fixe solidement le matériel, jamais en main pour le conducteur","Véhicule à l’arrêt ou sécurisé pour les dialogues","Évite les reflets du pare-brise"]]]],
+["Fiction - Technique",[
+["sequence","Plan séquence",[["gh4","E","Caméra principale"],["osmo","E","Suivre en marchant sans coupe"],["s16","R","Grand angle pour tout garder"],["h4n","R","Son continu"],["tri","O","Début ou fin sur plan fixe"]],["Répète le parcours et le timing","Prévois les zones de lumière différentes","Une personne dédiée au son"]],
+["decor","Plan ambiance / Décor",[["gh4","E","Caméra principale"],["s16","E","Établit le lieu"],["tri","E","Stabilité"],["mke","R","Ambiance sonore"],["h4n","R","Son seul sans dialogue"]],["10 secondes minimum par plan","Cadre avec premier plan, milieu et fond","Enregistre du son seul du lieu"]],
+["nuit","Scène de nuit",[["gh4","E","Attention au bruit : ISO 1600 max"],["l25","E","f/1.7, ouvre au maximum"],["tri","E","Vitesse lente sans bougé"],["osmo","R","Capteur 1 pouce confortable"],["s16","R","t/2.2 grand angle"],["refl","O","Renvoie la lumière d’un lampadaire"]],["ISO 800 à 1600 sur le GH4","Utilise les sources visibles dans le cadre","Mise au point manuelle avec loupe","Batteries au chaud dans une poche"]],
+["contrejour","Contre-jour / Silhouette",[["gh4","E","Caméra principale"],["refl","E","Déboucher le visage"],["s60","R","Compresse le soleil bas"],["l25","R","Plan plus large"],["tri","R","Stabilité"]],["Expose sur le ciel pour une vraie silhouette","Soleil bas, derrière le sujet","Cache le soleil derrière le sujet pour limiter le flare"]],
+["insert","Plan insert / Détail",[["gh4","E","Caméra principale"],["s60","E","Détail net, distance de confort"],["tri","E","Stabilité"],["l25","R","Plus large"],["refl","O","Lumière sur le détail"]],["Cadre serré, mise au point précise","Plusieurs prises à des vitesses différentes","Compose avec un premier plan flouté"]]]],
+["Reportage",[
+["interview","Interview / Témoignage",[["gh4","E","Caméra principale"],["l25","E","Visage naturel"],["tri","E","Cadre stable"],["h4n","E","Enregistre la voix"],["mke","R","Micro caméra de secours"],["refl","R","Lumière douce"]],["Sujet à 2-3 m du fond","Micro à 30 cm de la bouche","Regard vers l’intervieweur, pas vers la caméra","Questions ouvertes pour de vraies réponses"]],
+["docu","Documentaire terrain",[["gh4","E","Caméra principale"],["mke","E","Ambiance sur la caméra"],["osmo","R","Léger et réactif"],["h4n","R","Interviews"],["s16","R","Plans de contexte"],["tri","O","Plans fixes"]],["Multiplie les inserts et plans de coupe","Surveille batteries et place sur cartes","Demande les autorisations de tournage"]],
+["event","Événementiel",[["gh4","E","Caméra principale"],["mke","E","Ambiance sonore"],["osmo","R","Petit pour se faufiler"],["l25","R","Plans moyens"],["tri","O","Plan large fixe"]],["Arrive avant pour repérer les positions","Plan large puis plans serrés","Baisse le gain audio si le son est fort"]],
+["vlog","Vlog / Making-of",[["osmo","E","Selfie stabilisé"],["gh4","R","Plans soignés"],["mke","O","Meilleur son"],["h4n","O","Voix propre"]],["Parle près du micro pour un son propre","Filme le making-of sur le vif sans couper"]]]]
+];
+const ALLSC=SC.flatMap(g=>g[1]);
+const ADD={
+dialogue:[["ntg","E","Perche + NTG2 : meilleur son de dialogue"],["wgo","R","Cravate sans fil sur un acteur"],["ledbi","R","3 panneaux : principale, appoint, contre"],["ledrgb","O","Couleur d’ambiance en fond"],["s35","R","Plans moyens ciné"],["mon","R","Contrôler cadre et mise au point"],["mini","O","Deuxième micro sans fil"]],
+monologue:[["wgo","E","Cravate sans fil, voix constante"],["ntg","R","Perche hors cadre"],["ledbi","R","Lumière douce sur batterie"],["ledrgb","O","Couleur d’ambiance"],["s35","R","Plan moyen ciné"],["s85","O","Gros plan compressé"]],
+portrait:[["s85","R","Compression maximale, fond très flou"],["s35","O","Plan plus large"],["ledbi","R","Modeler le visage"],["wgo","O","Voix propre"],["mon","R","Mise au point sur l’œil"]],
+course:[["ronin","R","Suivi fluide avec le GH5"],["rig","O","Appui pour la caméra à l’épaule"],["l1435","R","Zoom pour varier les cadres"],["mini","R","Micro sans fil sur le coureur"],["ndr","R","Garder 1/100 en plein soleil"],["ndb","R","Alternative économique"],["magic","O","Caméra fixée sur le parcours"]],
+bagarre:[["ronin","R","Suivi fluide de l’action"],["rig","R","Caméras mobiles à l’épaule"],["wgo","O","Son des acteurs"],["ledrgb","O","Éclairage d’ambiance"],["mon","O","Contrôle des cadres"]],
+chute:[["rig","R","Deux caméras mobiles à l’épaule"],["magic","R","Fixer une caméra au sol ou près de la zone"],["ronin","O","Suivi du sujet avant la chute"],["l1435","O","Zoom pour recadrer vite"],["s85","O","Plan très éloigné"],["ndr","R","Garder la vitesse en plein soleil"],["ndb","R","Alternative économique"],["mon","R","Vérifier le cadrage avant l’action"]],
+foule:[["s35","R","Plans moyens sur les groupes"],["s85","O","Isoler des visages"],["l1435","R","Zoom pour s’adapter vite"],["vmp","R","Ambiance sur la caméra"]],
+vehicule:[["magic","E","Fixer l’Osmo ou le GH dans l’habitacle"],["wgo","R","Dialogue clair malgré le moteur"],["mini","R","Deuxième micro sans fil"],["ledbi","O","Éclairer le visage"]],
+sequence:[["ronin","E","Suivi fluide pendant toute la séquence"],["rig","R","Alternative à l’épaule"],["wgo","E","Son continu en mouvement"],["mon","R","Contrôler le cadre en marchant"],["ndr","R","Garder la même vitesse partout"],["ndb","R","Alternative économique"],["ledbi","O","Appoint dans les zones sombres"]],
+decor:[["ntg","R","Ambiance directive sur perche"],["vmp","O","Micro sur la caméra"],["ledrgb","R","Couleurs d’ambiance"],["ledbi","O","Corriger les zones sombres"],["magic","O","Position haute ou basse"]],
+nuit:[["ledbi","E","Appoint sur batterie"],["ledrgb","R","Source colorée pour l’ambiance"],["mon","R","Juger le bruit et la mise au point"],["s35","R","Fixe cinéma, plan moyen"],["magic","O","Fixer une lumière"]],
+contrejour:[["ledbi","R","Déboucher le visage"],["s85","R","Compresse le soleil bas"],["ndr","R","Contrôler l’exposition"],["ndb","R","Alternative économique"],["mon","R","Vérifier l’exposition"]],
+insert:[["s85","R","Détail net à distance"],["s35","R","Détail plus contextualisé"],["ledbi","R","Éclairer le détail"],["magic","R","Position précise, haute ou basse"],["mon","R","Mise au point précise"]],
+interview:[["ntg","E","Perche + NTG2 : voix propre, hors cadre"],["wgo","R","Cravate sans fil sur l’invité"],["vmp","O","Micro caméra de secours"],["ledbi","E","3 sources : principale, appoint, contre"],["s35","R","Plan serré ciné"],["mon","R","Contrôler le cadre"]],
+docu:[["l1435","R","Zoom polyvalent sur le terrain"],["rig","R","Stabilité à main levée"],["ronin","O","Plans de suivi"],["wgo","R","Micro sur l’interviewé"],["vmp","R","Micro sur la caméra"],["ndr","R","Plein soleil"],["ndb","R","Alternative économique"],["ledbi","O","Appoint pour une interview"]],
+event:[["l1435","E","Cadrer vite sans changer d’objectif"],["rig","R","Caméra à l’épaule pour suivre"],["ronin","O","Plans de suivi"],["wgo","R","Micro sur un intervenant"],["vmp","R","Ambiance sur la caméra"],["ledbi","O","Appoint si salle sombre"]],
+vlog:[["mini","E","Micro discret pour parler"],["wgo","R","Micro sans fil fiable"],["vmic","O","Micro sur la caméra"],["ledbi","O","Appoint pour le visage"]]};
+const ADD2={
+course:[["drone","R","Plan aérien de la poursuite"]],
+foule:[["drone","R","Plan aérien d’établissement"]],
+decor:[["drone","R","Plan aérien d’établissement du lieu"]],
+docu:[["drone","R","Plans aériens de contexte"]],
+event:[["drone","O","Plan large aérien si la zone est autorisée"]],
+vehicule:[["drone","O","Suivi aérien du véhicule"]]};
+Object.entries(ADD2).forEach(([k,v])=>{const s=ALLSC.find(x=>x[0]===k);if(s)s[2].push(...v)});
+Object.entries(ADD).forEach(([k,v])=>{const s=ALLSC.find(x=>x[0]===k);if(s)s[2].push(...v)});
+ALLSC.forEach(s=>{const i=s[2].findIndex(x=>x[0]==="gh4");if(i>-1)s[2].splice(i+1,0,["gh5",s[2][i][1],s[0]==="nuit"?"Un peu meilleur que le GH4 à ISO élevé":"Même rôle, avec stabilisation capteur et 4K 60p"])});
+const BASE_G=JSON.parse(JSON.stringify(G)),BASE_T=JSON.parse(JSON.stringify(TIPS)),BASE_S=ALLSC.map(s=>JSON.parse(JSON.stringify(s[2])));
+const saveCU=()=>{try{localStorage.setItem("lab-custom",JSON.stringify(CU))}catch(e){}};
+function applyCustom(){
+ Object.keys(G).forEach(k=>delete G[k]);Object.assign(G,JSON.parse(JSON.stringify(BASE_G)));
+ Object.keys(TIPS).forEach(k=>delete TIPS[k]);Object.assign(TIPS,JSON.parse(JSON.stringify(BASE_T)));
+ ALLSC.forEach((s,i)=>{s[2]=JSON.parse(JSON.stringify(BASE_S[i]))});
+ CU.del.forEach(id=>{delete G[id];delete TIPS[id];ALLSC.forEach(s=>{s[2]=s[2].filter(x=>x[0]!==id)})});
+ Object.keys(CU.gear).forEach(id=>{if(CU.del.includes(id))return;G[id]=CU.gear[id];TIPS[id]=CU.tips[id]||[]});
+ Object.keys(CU.use).forEach(id=>{if(!G[id])return;ALLSC.forEach(s=>{s[2]=s[2].filter(x=>x[0]!==id)});
+  Object.entries(CU.use[id]).forEach(([sid,v])=>{const s=ALLSC.find(x=>x[0]===sid);if(s)s[2].push([id,v[0],v[1]])})})}
+applyCustom();
+const isMod=id=>!!BASE_G[id]&&!!(CU.gear[id]||CU.use[id]||CU.tips[id]);
+function saveForm(){const v=i=>document.getElementById(i).value.trim(),L=t=>t.split("\n").map(x=>x.trim()).filter(Boolean);
+ const name=v("f-name");if(!name){document.getElementById("f-name").focus();return}
+ const id=ED.id||"c"+Date.now().toString(36);
+ CU.gear[id]=[v("f-cat"),name,v("f-desc"),L(document.getElementById("f-pros").value),L(document.getElementById("f-cons").value)];
+ CU.tips[id]=L(document.getElementById("f-tips").value);
+ const u={};document.querySelectorAll("[data-sc]").forEach(sel=>{if(sel.value){const old=ED.lv[sel.dataset.sc];u[sel.dataset.sc]=[sel.value,old?old[2]:""]}});
+ CU.use[id]=u;CU.del=CU.del.filter(x=>x!==id);saveCU();ED=null;applyCustom();render()}
+function vForm(){const id=ED.id,g=id?G[id]:["cam","","",[],[]],t=id?(TIPS[id]||[]):[],lv=ED.lv,L=a=>esc(a.join("\n"));
+ return `<div class="box"><h3>// ${id?"Modifier":"Ajouter"} une pièce</h3><div class="fm">
+<label>Nom<input id="f-name" value="${esc(g[1])}"></label>
+<label>Catégorie<select id="f-cat">${CATS.map(c=>`<option value="${c[0]}" ${c[0]===g[0]?"selected":""}>${c[1]}</option>`).join("")}</select></label>
+<label>Description<input id="f-desc" value="${esc(g[2])}"></label>
+<label>Avantages (un par ligne)<textarea id="f-pros" rows="3">${L(g[3])}</textarea></label>
+<label>Contraintes (une par ligne)<textarea id="f-cons" rows="3">${L(g[4])}</textarea></label>
+<label>Conseils d’utilisation (un par ligne)<textarea id="f-tips" rows="3">${L(t)}</textarea></label>
+<p class="n">Utile pour quelles scènes ?</p>
+<div class="sg">${ALLSC.map(s=>`<label>${s[1]}<select data-sc="${s[0]}"><option value="">—</option>${["E","R","O"].map(l=>`<option value="${l}" ${lv[s[0]]&&lv[s[0]][1]===l?"selected":""}>${LB[l]}</option>`).join("")}</select></label>`).join("")}</div>
+<div class="row"><button data-save="1">Enregistrer</button><button data-cancel="1">Annuler</button></div></div></div>`}
+function vInv(){if(ED)return vForm();
+ return `<div class="row noprint" style="margin:0 0 14px"><button data-add="1">+ Ajouter une pièce</button><button data-resetall="1">${RA?"Confirmer la réinitialisation":"Tout réinitialiser"}</button></div>`+vInvList()}
+const nrm=s=>String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+function vSearch(q){const n=nrm(q.trim());
+ const gl=Object.keys(G).filter(k=>nrm([G[k][1],G[k][2],G[k][3].join(" "),G[k][4].join(" "),(TIPS[k]||[]).join(" "),CATS.find(c=>c[0]===G[k][0])[1]].join(" ")).includes(n));
+ const sl=ALLSC.filter(s=>nrm(s[1]+" "+s[3].join(" ")).includes(n));
+ const sb=(s,t)=>`<button data-h="${s[0]}-${t}">${s[1]}</button>`;
+ const gh=gl.map(k=>{const us=ALLSC.filter(s=>s[2].some(x=>x[0]===k));
+  return `<div class="it"><b>${G[k][1]}</b><span class="d">${G[k][2]}</span><div class="row">${us.map(s=>sb(s,"materiel")).join("")||'<span class="d">Aucune scène pour l’instant</span>'}<button data-h="${ALLSC[0][0]}-inventaire">Voir la fiche</button></div></div>`}).join("");
+ return `<div class="box"><h3>// Recherche — ${esc(q.trim())}</h3>${gl.length||sl.length?"":'<p class="n">Aucun résultat.</p>'}${gl.length?`<h3>Matériel</h3>${gh}`:""}${sl.length?`<h3>Scènes</h3><div class="row">${sl.map(s=>sb(s,"materiel")).join("")}</div>`:""}</div>`}
+const BASE=["Batteries chargées (GH4, GH5, Osmo, drone, panneaux LED, moniteur)","Cartes SD vidées","Optiques propres","Balance des blancs réglée","Niveaux audio testés"];
+const TABS=[["materiel","Matériel"],["conseils","Conseils"],["checklist","Check-list"],["inventaire","Inventaire"]];
+const $=id=>document.getElementById(id);let tk=0,ck={};
+try{ck=JSON.parse(localStorage.getItem("lab-ck")||"{}")}catch(e){}
+function typeIn(root){const my=++tk,els=[...root.querySelectorAll("[data-t]")],rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+ els.forEach(e=>e.textContent=rm?e.dataset.t:"");if(rm)return;let i=0;
+ (function nxt(){if(my!==tk||i>=els.length)return;const e=els[i++],t=e.dataset.t;let k=0;
+ const iv=setInterval(()=>{if(my!==tk){clearInterval(iv);return}k+=2;e.textContent=t.slice(0,k);if(k>=t.length){clearInterval(iv);nxt()}},8)})()}
+const item=(id,l,note)=>`<div class="it"><b>${G[id][1]}</b><span class="bg ${l}">[${LB[l]}]</span>${note?`<span class="d">${note}</span>`:""}<details class="tp"><summary>Conseils</summary>${tipsList(id)}</details></div>`;
+function vMateriel(s){return `<div class="grid">`+CATS.map(c=>{const r=s[2].filter(x=>G[x[0]][0]===c[0]);return r.length?`<div class="box"><h3>// ${c[1]}</h3>${r.map(x=>item(x[0],x[1],x[2])).join("")}</div>`:""}).join("")+`</div>`+tipsBox(s)}
+function tipsBox(s){return `<div class="box"><h3>// Astuces — ${s[1]}</h3><div class="tips"><p>CONSEILS :</p>${s[3].map(t=>`<div data-t="${t}"></div>`).join("")}</div></div>`}
+function vConseils(s){return `<div class="box"><h3>// Conseils — ${s[1]}</h3><div class="tips"><p>RÉGLAGES ET CONSEILS :</p>${s[3].map(t=>`<div data-t="${t}"></div>`).join("")}</div></div>`}
+function vCheck(s){const items=[...s[2].filter(x=>x[1]==="E").map(x=>G[x[0]][1]),...BASE];
+ return `<div class="box"><h3>// Check-list — ${s[1]}</h3><div class="meta">${[["film","Titre du film"],["seq","N° de séquence"],["sc","N° de scène"]].map(f=>`<label>${f[1]}<input data-m="${f[0]}" value="${esc(META[f[0]]||"")}"></label>`).join("")}</div>${items.map((t,i)=>{const k=s[0]+i;return `<label class="ck"><input type="checkbox" data-k="${k}" ${ck[k]?"checked":""}><span>${t}</span></label>`}).join("")}<p class="n noprint">Cochez au fur et à mesure, c’est mémorisé dans ce navigateur.</p><div class="noprint row"><button id="pr">Imprimer / PDF</button><button data-rs="${s[0]}">Tout décocher</button></div></div>`}
+function used(id){return ALLSC.filter(s=>s[2].some(x=>x[0]===id)).length}
+function vInvList(){return `<div class="grid">`+CATS.map(c=>`<div class="box"><h3>// ${c[1]}</h3>`+Object.keys(G).filter(k=>G[k][0]===c[0]).map(k=>{const g=G[k];return `<div class="it"><b>${g[1]}</b><span class="d">${g[2]}</span><div class="pc"><div>+ ${g[3].join("<br>+ ")}</div><div class="c">- ${g[4].join("<br>- ")}</div></div><div class="n">Conseils d’utilisation</div>${tipsList(k)}<div class="n">Utile dans ${used(k)} scène(s)</div><div class="row noprint"><button data-edit="${k}">Modifier</button><button data-del="${k}">${PD===k?"Confirmer la suppression":"Supprimer"}</button>${isMod(k)?`<button data-rev="${k}">Rétablir l’original</button>`:""}</div></div>`}).join("")+`</div>`).join("")+`</div>`}
+function render(){
+ const h=location.hash.slice(1)||"dialogue-materiel",p=h.indexOf("-"),id=h.slice(0,p),tab=h.slice(p+1);
+ const s=ALLSC.find(x=>x[0]===id)||ALLSC[0],t=TABS.some(x=>x[0]===tab)?tab:"materiel";
+ $("side").innerHTML=SC.map(g=>`<h2>/ ${g[0]}</h2>`+g[1].map(x=>`<button data-h="${x[0]}-${t}" aria-pressed="${x[0]===s[0]}">${x[0]===s[0]?"[X]":"[ ]"} ${x[1]}</button>`).join("")).join("");
+ const body=t==="materiel"?vMateriel(s):t==="conseils"?vConseils(s):t==="checklist"?vCheck(s):vInv();
+ $("main").innerHTML=Q.trim()?vSearch(Q):`<div class="tabs" role="tablist">${TABS.map(x=>`<button role="tab" data-h="${s[0]}-${x[0]}" aria-selected="${x[0]===t}">[ ${x[1]} ]</button>`).join("")}</div>`+body;
+ typeIn($("main"))}
+document.addEventListener("click",e=>{const T=e.target;
+ const b=T.closest("[data-h]");if(b){const same=location.hash.slice(1)===b.dataset.h;if(Q)$("q").value="";Q="";ED=null;PD=null;if(same)render();else location.hash=b.dataset.h;return}
+ if(T.closest("[data-add]")){ED={id:null,lv:{}};return render()}
+ const ed=T.closest("[data-edit]");if(ed){const id=ed.dataset.edit,lv={};ALLSC.forEach(s=>{const x=s[2].find(y=>y[0]===id);if(x)lv[s[0]]=x});ED={id,lv};return render()}
+ const d=T.closest("[data-del]");if(d){const id=d.dataset.del;if(PD!==id){PD=id;return render()}PD=null;
+  if(BASE_G[id]){if(!CU.del.includes(id))CU.del.push(id)}else{delete CU.gear[id];delete CU.tips[id];delete CU.use[id]}
+  saveCU();applyCustom();return render()}
+ const r=T.closest("[data-rev]");if(r){const id=r.dataset.rev;delete CU.gear[id];delete CU.tips[id];delete CU.use[id];CU.del=CU.del.filter(x=>x!==id);saveCU();applyCustom();return render()}
+ if(T.closest("[data-resetall]")){if(!RA){RA=true;return render()}RA=false;CU={gear:{},tips:{},use:{},del:[]};saveCU();applyCustom();return render()}
+ if(T.closest("[data-cancel]")){ED=null;return render()}
+ if(T.closest("[data-save]"))saveForm()});
+document.addEventListener("input",e=>{if(e.target.id==="q"){Q=e.target.value;render();return}const m=e.target.dataset.m;if(!m)return;META[m]=e.target.value;try{localStorage.setItem("lab-meta",JSON.stringify(META))}catch(x){}});
+document.addEventListener("click",e=>{if(e.target.closest("#pr")){try{window.print()}catch(x){}}const r=e.target.closest("[data-rs]");if(r){Object.keys(ck).forEach(k=>{if(k.indexOf(r.dataset.rs)===0)delete ck[k]});try{localStorage.setItem("lab-ck",JSON.stringify(ck))}catch(x){}render()}});
+document.addEventListener("change",e=>{const k=e.target.dataset.k;if(!k)return;ck[k]=e.target.checked;try{localStorage.setItem("lab-ck",JSON.stringify(ck))}catch(x){}});
+addEventListener("hashchange",render);render();
+</script>
+</body>
+</html>
